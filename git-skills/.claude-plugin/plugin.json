@@ -1,6 +1,6 @@
 {
   "name": "git-skills",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "GitHub PR lifecycle skills for Claude Code — open PRs, rebase-merge, analyze existing reviews, and apply review feedback with commit, push, and reply to review threads.",
   "author": {
     "name": "dmkim",
