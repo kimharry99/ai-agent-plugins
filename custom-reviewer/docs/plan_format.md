@@ -5,11 +5,11 @@ summary: Reference document for plan-format review — the three-phase Introduct
 
 # Plan Format Reference
 
-This document is the single reference used by the plan-format review context (`@${CLAUDE_PLUGIN_ROOT}/context/review-plan-format.md`). It defines the minimum skeleton every plan document must follow and the signals reviewers look for in a diff.
+This document is the single reference used by the plan-format review context (`@${CLAUDE_PLUGIN_ROOT}/context/review-plan-format.md`). It defines the structure plan documents should follow and the signals reviewers look for in a diff.
 
-A plan must follow a 3-phase structure — **Introduction → Body → Conclusion** — where each phase contains the required subsections listed below. Numbering is hierarchical: top-level numbers `1`, `2`, `3` label the phases; `1.1`, `2.1`, etc. label the subsections that belong to each phase. Each subsection is written *big-picture-first*: a `[High-level]` statement any reader can grasp, followed by `[Detail]` specifics.
+A plan must follow a 3-phase structure — **Introduction → Body → Conclusion**. The three top-level phases are **mandatory** (a plan that opens with no Introduction at all, or ends with no Conclusion at all, is malformed). The subsections listed under each phase are the **recommended template**, not a required schema: a plan may omit any subsection that does not apply to the task at hand. Numbering is hierarchical: top-level numbers `1`, `2`, `3` label the (required) phases; `1.1`, `2.1`, etc. label the (recommended) subsections that belong to each phase. Each subsection is written *big-picture-first*: a `[High-level]` statement any reader can grasp, followed by `[Detail]` specifics.
 
-The plan-format and document-writing perspectives are complementary. `review-document-writing` enforces the universal Intro-Body-Conclusion / Big-Picture-First principles on *any* document; `plan-format` (this reference) enforces the *plan-specific* subsection skeleton on top.
+The plan-format and document-writing perspectives are complementary. `review-document-writing` enforces the universal Intro-Body-Conclusion / Big-Picture-First principles on *any* document; `plan-format` (this reference) enforces the plan-specific phase requirement and the per-subsection quality bars defined below.
 
 ## Writing principles inherited from `review-document-writing`
 
@@ -17,7 +17,7 @@ The plan-format and document-writing perspectives are complementary. `review-doc
 - **Body** presents the big picture (architecture, concept) first, then drills into components, code, and edge cases. The validation plan also lives in Body — it is part of "how we will know this works," not a separate wrap-up.
 - **Conclusion** closes the discussion: it recaps the plan's essence (§3.1) and lists any items still requiring a decision (§3.2).
 
-## Required Structure
+## Structure
 
 ### 1. Introduction
 
@@ -25,7 +25,7 @@ The plan-format and document-writing perspectives are complementary. `review-doc
 **Purpose.** Why is this task being initiated?
 **High-level.** Background — the existing problem to be solved or the new requirement that prompted this plan.
 **Detail.** Specific inconveniences or costs caused by the current situation, and the concrete outcomes expected once the requirement is met.
-**Violation signals.** Section missing entirely; or present but only restates "what we will do" without explaining "why"; or written in jargon that assumes domain context the reader may not have.
+**Violation signals.** When present, only restates "what we will do" without explaining "why"; or written in jargon that assumes domain context the reader may not have.
 
 #### 1.2 Goal
 **Purpose.** What will ultimately change once this plan is completed?
@@ -37,7 +37,7 @@ The plan-format and document-writing perspectives are complementary. `review-doc
 **Purpose.** What are the clear boundaries of this task?
 **High-level.** Scope edges in a sentence.
 **Detail.** Specific features or specifications that are easily confused with the goal but are intentionally excluded.
-**Violation signals.** Section absent on a non-trivial plan; present but vacuous ("nothing else"); excludes obvious-out-of-scope items while omitting the genuinely adjacent confusions readers would worry about.
+**Violation signals.** When present, vacuous ("nothing else"); or excludes obvious-out-of-scope items while omitting the genuinely adjacent confusions readers would worry about.
 
 ### 2. Body
 
@@ -52,7 +52,7 @@ The plan-format and document-writing perspectives are complementary. `review-doc
 **Purpose.** What other directions were weighed, and why was this one chosen?
 **High-level.** Other major directions considered as alternatives.
 **Detail.** Per-alternative technical comparison (performance, development cost, maintainability) and the explicit rationale for choosing the current approach.
-**Violation signals.** Section absent on a non-trivial design decision (Important); alternatives listed without comparison; the chosen approach is not explicitly justified against the listed alternatives.
+**Violation signals.** Alternatives listed without comparison; the chosen approach is not explicitly justified against the listed alternatives.
 
 #### 2.3 Risks / Trade-offs
 **Purpose.** What are we accepting as a cost of this choice?
@@ -64,7 +64,7 @@ The plan-format and document-writing perspectives are complementary. `review-doc
 **Purpose.** How will success be verified?
 **High-level.** Overall testing strategy.
 **Detail.** Core unit-test scenarios and runnable end-to-end verification commands.
-**Violation signals.** Section missing (Critical); contains only abstract phrases like "tests will pass" without runnable steps; coverage limited to "unit tests" with no end-to-end check. Misplaced under Conclusion instead of Body (validation is part of *how* the work is executed, not a closing summary).
+**Violation signals.** Contains only abstract phrases like "tests will pass" without runnable steps; coverage limited to "unit tests" with no end-to-end check. Validation content misplaced under Conclusion instead of Body (Critical — validation is part of *how* the work is executed and belongs in Body, regardless of whether it lives under a §2.4 header).
 
 ### 3. Conclusion
 
@@ -72,17 +72,17 @@ The plan-format and document-writing perspectives are complementary. `review-doc
 **Purpose.** Wrap up the discussion by recapping the plan in one place.
 **High-level.** One short paragraph that connects the dots: the problem from §1.1 → the chosen approach from §2.1 → the verification plan from §2.4. A reader who jumps to the end should understand the essence of the plan without scrolling back up.
 **Detail.** The concrete effect of executing this plan and the single most important trade-off accepted (a pointer back to §2.3). Keep it terse — this section recaps, it does not introduce new material.
-**Violation signals.** Section missing (the plan ends abruptly after §2.4); summary introduces new arguments, files, or decisions not present in §§1–2 (Important — the summary should *recap*, not *extend*); summary covers only part of the plan (e.g., only the approach) and omits the problem or the verification strategy.
+**Violation signals.** When present, summary introduces new arguments, files, or decisions not present in §§1–2 (Important — the summary should *recap*, not *extend*); or covers only part of the plan (e.g., only the approach) and omits the problem or the verification strategy.
 
 #### 3.2 Open Questions
 **Purpose.** What remains unresolved?
 **High-level.** Major directional issues still under discussion.
 **Detail.** Specific implementation or design questions for reviewers.
-**Violation signals.** Section absent while the plan contains TODOs or hedging language elsewhere; questions listed without indicating who must decide; questions that should have been resolved during the planning phase but were deferred without justification.
+**Violation signals.** When present, questions listed without indicating who must decide; or questions that should have been resolved during the planning phase but were deferred without justification.
 
 ## Flexibility
 
-The subsections above are the **minimum required skeleton**, not a fixed schema. Plans may freely add subsections beyond this template when they help the reader — for example:
+The three top-level phases (Introduction, Body, Conclusion) are mandatory — a plan must contain content for each phase. The subsections above are a **recommended template** for each phase, not a required schema: a plan may omit any recommended subsection that does not apply to the task, and may freely add subsections beyond the template when they help the reader. Common additions:
 
 - `Critical files` / `Edit targets` — explicit file paths to be modified.
 - `Reused utilities` — existing functions or patterns the plan will lean on.
@@ -90,6 +90,6 @@ The subsections above are the **minimum required skeleton**, not a fixed schema.
 - `Step-by-step Implementation` — when a sequenced execution order is important enough to be part of the plan itself.
 - `Migration Plan`, `Rollout Strategy`, `Dependencies`, `Glossary`, etc.
 
-When added, place each new subsection under whichever phase fits its function (`1.x` for setup/scope material, `2.x` for design/execution material, `3.x` for closing material) and number it in sequence. Reviewers should treat added subsections favorably **as long as** they (a) do not displace any of the required subsections, (b) preserve Introduction → Body → Conclusion ordering, and (c) obey big-picture-first within their own content.
+When added, place each new subsection under whichever phase fits its function (`1.x` for setup/scope material, `2.x` for design/execution material, `3.x` for closing material) and number it in sequence. Reviewers should treat added subsections favorably **as long as** they (a) preserve Introduction → Body → Conclusion ordering, and (b) obey big-picture-first within their own content.
 
-Conversely, a plan must **not** drop a required subsection just because it seems trivially short for the task. Write a single line under it ("§1.3 Non-goals — none beyond §1.2") rather than omit it, so a reader can confirm the question was at least considered.
+When a recommended subsection's question *is* relevant to the plan but the answer is short, prefer a one-line acknowledgement under the subsection header ("§1.3 Non-goals — none beyond §1.2") over silent omission, so a reader can confirm the question was at least considered. Silent omission is fine only when the question genuinely does not apply.
