@@ -55,7 +55,7 @@ Only emit this if the user aborted `scripts/wait-for-reviews.sh`. The spool scri
 # PR Review Analysis
 
 **PR:** #<number> — <title>
-**Reviews:** 0 reviews, 0 comments
+**Reviews:** 0 reviews, 0 inline comments
 
 No reviews have been submitted on this PR yet (spool was aborted).
 ```

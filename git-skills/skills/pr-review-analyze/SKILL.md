@@ -88,7 +88,7 @@ After categorizing severity, evaluate each **raw comment** against the actual co
 
 ## Output format
 
-Before producing output, read `references/output-format.md` and follow the full-report template verbatim (including verdict rules).
+Before producing output, read `references/output-format.md` and follow the full-report template verbatim (including verdict rules). The empty-report template is used only when the user aborts `scripts/wait-for-reviews.sh` (see Spooling section above); in every other case, use the full-report template.
 
 ## Rules
 
