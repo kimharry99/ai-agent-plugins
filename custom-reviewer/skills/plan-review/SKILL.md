@@ -12,8 +12,12 @@ Orchestrates a multi-perspective review of a single plan document. You (Claude) 
 | Specialist | Review context |
 |---|---|
 | architect | `@${CLAUDE_PLUGIN_ROOT}/context/review-architect.md` |
+| document-writing | `@${CLAUDE_PLUGIN_ROOT}/context/review-document-writing.md` |
+| plan-format | `@${CLAUDE_PLUGIN_ROOT}/context/review-plan-format.md` |
 
 A context file that is empty or missing means the specialist is not yet ready — skip it. Add a new row here when a new `review-*.md` context should apply to plan reviews; no other edits are needed.
+
+Overlapping findings between specialists are expected and surfaced verbatim — `plan-review` does not deduplicate. The perspectives are intentionally complementary: `document-writing` owns Intro-Body-Conclusion / big-picture-first; `plan-format` owns the §1.1–§3.2 recommended subsection template (plus phase-presence and per-subsection quality); `architect` owns content/design judgments.
 
 The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@`-referenced documents inside a context file itself, so this skill only needs to point it at the context.
 
@@ -42,12 +46,12 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
 
 4. **Collect outputs.** Each reviewer returns a Markdown block in the template from `@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`. Do not alter individual outputs.
 
-5. **Consolidate and report.** Emit the final summary in this exact shape:
+5. **Consolidate and report.** Emit the final summary in this shape. The `Specialists:` field is **not** a fixed enumeration — populate it with the comma-separated list of specialists actually run (the active list built in step 2). If a context file was empty or missing, the corresponding specialist must not appear on this line:
 
    ```markdown
    # Plan Review Summary
 
-   **Plan:** <PLAN>  •  **Diff:** <DIFF_PATH>  •  **Specialists:** architect[, …]  •  **Overall Verdict:** APPROVE | REQUEST CHANGES
+   **Plan:** <PLAN>  •  **Diff:** <DIFF_PATH>  •  **Specialists:** <active specialists, comma-separated>  •  **Overall Verdict:** APPROVE | REQUEST CHANGES
 
    ## Consolidated Findings
    ### Critical

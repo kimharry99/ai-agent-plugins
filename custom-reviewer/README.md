@@ -16,6 +16,8 @@ This plugin is for Claude Code users who want PR-style reviews (or plan/spec san
   - **architect** (SOLID / DRY / KISS / YAGNI, module boundaries, dependency direction), backed by `docs/software_architecture.md`
   - **comment** (code-comment accuracy, staleness, and long-term maintainability; `/code-review` only)
   - **simplification** (local clarity — naming, nesting, dead code, redundant patterns, idiom fit; `/code-review` only)
+  - **document-writing** (Intro-Body-Conclusion structure, big-picture-first flow; `/plan-review` only)
+  - **plan-format** (the Introduction / Body / Conclusion skeleton and its required subsections — §1.1 Context, §1.2 Goal, §1.3 Non-goals, §2.1 Proposed Approach, §2.2 Alternatives Considered, §2.3 Risks / Trade-offs, §2.4 Test / Validation Plan, §3.1 Summary, §3.2 Open Questions; `/plan-review` only), backed by `docs/plan_format.md`
 - Reserved slot: **performance** (empty placeholder, activates automatically once you fill it in)
 
 ## Requirements
@@ -123,10 +125,13 @@ agents/
 context/
 ├── review-architect.md                # SOLID / DRY / KISS / YAGNI + boundaries
 ├── review-comment.md                  # code-comment accuracy & maintainability
+├── review-document-writing.md         # Intro-Body-Conclusion + big-picture-first (plan-review)
+├── review-plan-format.md              # Introduction / Body / Conclusion skeleton + required subsections (plan-review)
 ├── review-simplification.md           # local clarity (naming, nesting, dead code, idiom fit)
 └── review-performance.md              # (placeholder — empty, reserved slot)
 
 docs/
+├── plan_format.md                     # referenced by the plan-format context
 └── software_architecture.md           # referenced by the architect context
 
 skills/
