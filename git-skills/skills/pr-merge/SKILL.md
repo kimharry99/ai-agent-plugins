@@ -1,6 +1,6 @@
 ---
 name: pr-merge
-description: Full PR merge workflow — rebases the current branch onto its target (defaults to main), force-pushes, verifies the Test Plan, and merges via a merge commit. Use when the user says: (1) "merge PR", (2) "rebase and merge", (3) "land this PR", or (4) "/pr-merge".
+description: 'Full PR merge workflow — rebases the current branch onto its target (defaults to main), force-pushes, verifies all review threads are replied to and resolves them, verifies the Test Plan, and merges via a merge commit. Use when the user says: (1) "merge PR", (2) "rebase and merge", (3) "land this PR", or (4) "/pr-merge".'
 ---
 
 # pr-merge
@@ -26,8 +26,13 @@ At runtime, scan the available tool list for tools matching these patterns (glob
 | Merge PR | `*merge_pull_request*` | `gh pr merge` |
 | Fetch PR details (body) | `*get_pull_request*` | `gh pr view --json body` |
 | Update PR body | `*update_pull_request*` | `gh pr edit --body-file` |
+| List review threads (with resolution status) | `*list_pull_request_review_threads*` or `*get_review_threads*` | `gh api graphql` (see Step 4) |
+| Resolve a review thread | `*resolve_review_thread*` | `gh api graphql` (see Step 5) |
+| Identify current user | `*get_authenticated_user*` or `*viewer*` | `gh api user -q .login` |
 
 Use the first match for each. If no MCP tool matches, fall back to the gh CLI. If neither an MCP tool nor the `gh` CLI is available, stop immediately and tell the user that GitHub access is required to run this skill.
+
+Thread resolution has no REST or `gh` subcommand — `gh api graphql` is the only fallback. Resolve `{owner}` and `{repo}` for GraphQL calls by parsing `git remote get-url origin`.
 
 **Merge tool verification:** Before using the discovered `*merge_pull_request*` tool, confirm it accepts a `merge_method` parameter (or equivalent). If it does not, fall back to `gh pr merge --merge`. Using a tool without `merge_method` control risks a silent squash or rebase-fast-forward merge.
 
@@ -84,7 +89,105 @@ Do NOT retry with bare --force.
 
 Do NOT proceed further.
 
-### Step 4 — verify Test Plan
+### Step 4 — verify all review threads are replied
+
+Fetch review threads and the current user's login. Inline review threads are scoped to a file/line; top-level PR review bodies are NOT review threads and are not part of this check.
+
+**Path A — MCP:** Call the discovered `*list_pull_request_review_threads*` tool for `<PR_NUMBER>`, and the `*viewer*` / `*get_authenticated_user*` tool to get the current login.
+
+**Path B — gh CLI fallback:** Resolve `<OWNER>` and `<REPO>` from `git remote get-url origin`, then run:
+
+```bash
+gh api graphql \
+  -F owner="<OWNER>" -F name="<REPO>" -F number=<PR_NUMBER> \
+  -f query='
+    query($owner: String!, $name: String!, $number: Int!) {
+      viewer { login }
+      repository(owner: $owner, name: $name) {
+        pullRequest(number: $number) {
+          reviewThreads(first: 100) {
+            nodes {
+              id
+              isResolved
+              comments(first: 100) {
+                nodes {
+                  author { login }
+                  path
+                  line
+                  originalLine
+                }
+              }
+            }
+          }
+        }
+      }
+    }'
+```
+
+From the response, build the inspection set: every thread where `isResolved == false`.
+
+For each inspected thread, classify it:
+- **replied** — at least one comment in `comments.nodes` has `author.login == viewer.login`.
+- **unreplied** — no comment by the viewer.
+
+If any thread is **unreplied**, STOP IMMEDIATELY. Output:
+
+```
+Unreplied review threads detected (<N>):
+
+- <path>:<line or originalLine>  (reviewer: <root-comment author.login>)
+- ...
+
+Please respond to each thread before merging:
+  1. Run /pr-review-apply to draft and submit replies.
+  2. Re-run /pr-merge once every thread has your reply.
+
+Do NOT proceed further.
+```
+
+Do not call any tools after this output.
+
+If every inspected thread is **replied**, retain the list of their `id` values as `<THREADS_TO_RESOLVE>` for the next step.
+
+### Step 5 — resolve replied review threads
+
+If `<THREADS_TO_RESOLVE>` is empty (no unresolved threads remain), skip to Step 6.
+
+Otherwise, for each `<THREAD_ID>` in `<THREADS_TO_RESOLVE>`:
+
+**Path A — MCP:** Call the discovered `*resolve_review_thread*` tool with `threadId`: `<THREAD_ID>`.
+
+**Path B — gh CLI fallback:**
+
+```bash
+gh api graphql -F threadId="<THREAD_ID>" \
+  -f query='mutation($threadId: ID!) {
+    resolveReviewThread(input: { threadId: $threadId }) {
+      thread { isResolved }
+    }
+  }'
+```
+
+Confirm the response shows `thread.isResolved == true`. If any call fails or returns `isResolved == false`, STOP IMMEDIATELY. Output:
+
+```
+Failed to resolve thread <THREAD_ID>.
+
+Response:
+<raw response>
+
+Resolve the thread manually via the GitHub UI, then re-run /pr-merge.
+```
+
+Do not proceed further.
+
+After all threads resolve successfully, output one line and continue:
+
+```
+Resolved <N> review thread(s).
+```
+
+### Step 6 — verify Test Plan
 
 Fetch the PR body:
 
@@ -140,7 +243,7 @@ For each **Auto** item:
 
    Fix the issue and re-run /pr-merge. Do NOT proceed to the merge.
    ```
-   Do NOT continue to the next item or to Step 5.
+   Do NOT continue to the next item or to Step 7.
 
 #### Manual path
 
@@ -172,7 +275,7 @@ gh pr edit <PR_NUMBER> --body-file - <<'BODY'
 BODY
 ```
 
-### Step 5 — merge the PR
+### Step 7 — merge the PR
 
 Always use the merge commit method. Never squash or rebase-fast-forward.
 
@@ -184,7 +287,7 @@ Always use the merge commit method. Never squash or rebase-fast-forward.
 gh pr merge <PR_NUMBER> --merge
 ```
 
-### Step 6 — report result
+### Step 8 — report result
 
 Retrieve and output the merge commit SHA and the PR URL:
 
