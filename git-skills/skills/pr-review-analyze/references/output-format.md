@@ -41,7 +41,9 @@ Use this template verbatim when producing the final analysis.
 - <observation>
 ```
 
-## Empty report (no reviews yet)
+## Empty report (spool-aborted fallback only)
+
+Only emit this if the user aborted `scripts/wait-for-reviews.sh`. The spool script in SKILL.md is mandatory in all other zero-review cases.
 
 ```markdown
 # PR Review Analysis
@@ -49,7 +51,7 @@ Use this template verbatim when producing the final analysis.
 **PR:** #<number> — <title>
 **Reviews:** 0 reviews, 0 comments
 
-No reviews have been submitted on this PR yet.
+No reviews have been submitted on this PR yet (spool was aborted).
 ```
 
 ## Notes

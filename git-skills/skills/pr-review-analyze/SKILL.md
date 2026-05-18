@@ -29,17 +29,17 @@ Fetch reviews and inline comments in parallel once the PR number is resolved.
 
 To resolve `{owner}` and `{repo}` for gh CLI fallbacks: `git remote get-url origin` and parse the GitHub URL.
 
-## Spooling — wait for reviews
+## Spooling — wait for reviews (MANDATORY when reviews are empty)
 
-If the reviews array returned above is empty (length == 0), do not output the empty report yet. Instead, run the bundled script using the Bash tool:
+If reviews length > 0, skip this section.
+
+If reviews length == 0, you **MUST** run the bundled spool script using the Bash tool before producing any output. Do not substitute the empty-report template — that template is reserved only for when the user aborts the script (e.g. Ctrl-C).
 
 ```bash
 bash scripts/wait-for-reviews.sh <owner> <repo> <PR>
 ```
 
-The script prints `"No reviews yet on PR #<PR>. Polling again in 60s..."` each cycle and exits once at least one review is found. After it exits, re-fetch reviews and inline comments in parallel, then proceed with the analysis.
-
-If reviews are already present (length > 0), skip this section entirely.
+The script blocks, polling every 60s, and exits with status 0 once at least one review exists. After it exits, re-fetch reviews and inline comments in parallel, then proceed with the full-report analysis.
 
 ## Severity categorization
 
@@ -57,7 +57,7 @@ Resolved/outdated comments are still included but marked `[resolved]` in the out
 
 ## Output format
 
-Before producing output, read `references/output-format.md` and follow its template verbatim (full report and empty-report variants, verdict rules).
+Before producing output, read `references/output-format.md` and follow the full-report template verbatim (including verdict rules).
 
 ## Rules
 
