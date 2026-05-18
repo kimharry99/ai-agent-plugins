@@ -1,6 +1,6 @@
 ---
 name: pr-review-analyze
-description: Fetch and analyze all reviews on a GitHub pull request. Consolidates reviewer feedback into Critical / Important / Suggestion categories and produces a per-reviewer summary. Output mirrors the custom-reviewer consolidated format. Use when the user says "analyze PR reviews", "summarize review feedback", "what did reviewers say", "show me the review comments", or "/pr-review-analyze".
+description: Fetch and analyze all reviews on a GitHub pull request. Evaluates each comment's validity against the actual code at HEAD (Agree / Disagree / Unclear with reasoning) and consolidates feedback into Critical / Important / Suggestion categories with a per-reviewer summary. Use when the user says "analyze PR reviews", "summarize review feedback", "what did reviewers say", "show me the review comments", or "/pr-review-analyze".
 ---
 
 # pr-review-analyze
@@ -55,6 +55,37 @@ Classify each review and comment using these rules, in priority order:
 
 Resolved/outdated comments are still included but marked `[resolved]` in the output.
 
+## Validity assessment
+
+After categorizing severity, evaluate each **raw comment** against the actual code at HEAD and assign one of three validity labels with a 1–2 sentence reason. A raw comment is a single inline or general comment as posted by a reviewer — evaluate them individually, not the consolidated rollup.
+
+### Labels
+
+| Label | Meaning |
+|---|---|
+| `Agree` | After reading the code, the reviewer's claim is factually correct and the suggestion is a reasonable improvement. |
+| `Disagree` | The reviewer is mistaken about the facts (case is already handled elsewhere, behavior is intentional, claim contradicts the code), or the tradeoff they propose is clearly worse. |
+| `Unclear` | The code alone is insufficient to judge — depends on design intent, external system behavior, or business requirements. State in the reason what additional information is needed. |
+
+### Gathering context for each comment
+
+- **Inline comment:** Read the **entire file** at `file:line` (not just nearby lines). The reviewer's premise may depend on code far from the cited line.
+- **Symbol mentioned in body:** If the comment names a function, type, or flag, Grep for callers/references and read the most relevant ones to confirm the claim.
+- **PR diff cross-check:** Determine whether the cited line is part of this PR's diff or pre-existing code. A comment about pre-existing code is often `Unclear` (out of scope) unless the PR touches the surrounding behavior.
+- **General (top-level) comment:** Read the PR diff overview and any files the comment explicitly or implicitly references.
+
+### Efficiency
+
+- Deduplicate reads: if multiple comments reference the same file, read it once.
+- For >5 comments, batch Read/Grep calls in parallel.
+- Stop expanding context once the label is defensible — don't chase callers indefinitely.
+
+### Constraints
+
+- **Ground every judgment in the code at HEAD.** Cite a specific `file:line` or symbol in the reason. Never guess.
+- Prefer `Unclear` over a confident guess when intent is genuinely ambiguous.
+- Do not modify source files, write PR replies, or push commits during analysis. This skill only evaluates.
+
 ## Output format
 
 Before producing output, read `references/output-format.md` and follow the full-report template verbatim (including verdict rules).
@@ -65,4 +96,6 @@ Before producing output, read `references/output-format.md` and follow the full-
 - Never fabricate or infer reviewer intent beyond what the review text states.
 - Include resolved comments but mark them `[resolved]`.
 - Every reviewer who submitted at least one review or comment must appear in the Per-Reviewer Summary.
+- Validity assessment must be grounded in the actual code at HEAD. If a comment references code outside the diff, read that code before judging.
+- Use `Unclear` instead of guessing when design intent, business rules, or external behavior is required to judge.
 - Do not modify any source files or the PR during analysis.
