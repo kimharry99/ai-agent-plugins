@@ -82,6 +82,10 @@ Test files (paths matching `*test_*`, `*_test.py`, `*/tests/*`, or `*/test/*`) a
    ```
 2. The SessionStart hook picks it up automatically on the next session — no other changes needed.
 3. To enforce the rule at write time (blocking violations), add a check to `hooks/check-python-rules.sh`.
+4. To expose the rule via the `python-rules` skill (e.g. for `/goal` conditions), add a line to `skills/python-rules/SKILL.md`:
+   ```
+   @${CLAUDE_PLUGIN_ROOT}/rules/<name>.md
+   ```
 
 ## Repo Layout
 
@@ -100,6 +104,10 @@ rules/
 ├── python-style.md                # Google Python Style Guide conventions
 ├── test-layout.md                 # Test file placement rules
 └── test-patterns.md               # Test coding patterns (_Testable* subclass pattern)
+
+skills/
+└── python-rules/
+    └── SKILL.md                   # Aggregates rules/*.md for /goal condition binding
 ```
 
 Hook definitions and scripts reference other plugin files using `${CLAUDE_PLUGIN_ROOT}/...`, so the layout above is the canonical plugin root.
