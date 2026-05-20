@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Reviews a diff (uncommitted code changes or edits to a plan file) through a provided review context.
-model: opus
+model: sonnet
 effort: medium
 ---
 
