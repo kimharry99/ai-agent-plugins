@@ -5,7 +5,7 @@ description: Authoritative Python coding standards — strict OOP, Google Python
 
 # python-rules
 
-When this skill is referenced (e.g. from `/goal` conditions), treat the four rule documents below as **hard constraints** for any Python work in the current session. Violations must be fixed before completing the work.
+When this skill is referenced (e.g. from `/goal` conditions), treat the rule documents listed below as **hard constraints** for any Python work in the current session. Violations must be fixed before completing the work.
 
 ## Active rules
 

@@ -104,6 +104,10 @@ rules/
 ├── python-style.md                # Google Python Style Guide conventions
 ├── test-layout.md                 # Test file placement rules
 └── test-patterns.md               # Test coding patterns (_Testable* subclass pattern)
+
+skills/
+└── python-rules/
+    └── SKILL.md                   # Aggregates rules/*.md for /goal condition binding
 ```
 
 Hook definitions and scripts reference other plugin files using `${CLAUDE_PLUGIN_ROOT}/...`, so the layout above is the canonical plugin root.
