@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (uncommitted changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context (currently: architect), then returns a consolidated summary.
+description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (uncommitted changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context (currently: architect), then returns a consolidated summary."
 ---
 
 # code-review
