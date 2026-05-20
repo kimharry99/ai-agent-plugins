@@ -2,7 +2,7 @@
 name: reviewer
 description: Reviews a diff (uncommitted code changes or edits to a plan file) through a provided review context.
 model: sonnet
-effort: medium
+effort: max
 ---
 
 # Reviewer
