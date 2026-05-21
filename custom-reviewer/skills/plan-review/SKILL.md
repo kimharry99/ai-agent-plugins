@@ -5,7 +5,7 @@ description: Review a single plan/spec document by orchestrating specialist revi
 
 # plan-review
 
-Orchestrates a multi-perspective review of a single plan document. You (Claude) build a diff for the plan, spawn one reviewer subagent per active specialist context in parallel, and return a consolidated summary.
+Orchestrates a multi-perspective review of a single plan document. Build a diff for the plan, spawn one reviewer subagent per active specialist context in parallel, and return a consolidated summary.
 
 ## Available specialists
 

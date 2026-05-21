@@ -1,0 +1,44 @@
+{
+  "name": "my-claude-plugins",
+  "interface": {
+    "displayName": "My Claude Plugins"
+  },
+  "plugins": [
+    {
+      "name": "python-harness",
+      "source": {
+        "source": "local",
+        "path": "./python-harness"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "custom-reviewer",
+      "source": {
+        "source": "local",
+        "path": "./custom-reviewer"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "git-skills",
+      "source": {
+        "source": "local",
+        "path": "./git-skills"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

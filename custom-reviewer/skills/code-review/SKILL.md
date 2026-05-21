@@ -5,7 +5,7 @@ description: "Review code changes by orchestrating specialist reviewer subagents
 
 # code-review
 
-Orchestrates a multi-perspective review of a code diff. You (Claude) build a diff for the requested scope, spawn one reviewer subagent per active specialist context in parallel, and return a consolidated summary. For review of plan/spec documents, use the `plan-review` skill instead.
+Orchestrates a multi-perspective review of a code diff. Build a diff for the requested scope, spawn one reviewer subagent per active specialist context in parallel, and return a consolidated summary. For review of plan/spec documents, use the `plan-review` skill instead.
 
 ## Scope modes
 
