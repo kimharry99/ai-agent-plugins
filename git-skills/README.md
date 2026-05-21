@@ -27,15 +27,15 @@ All skills try GitHub MCP tools first and fall back to the `gh` CLI automaticall
 ### Claude Code
 
 ```bash
-/plugin install git-skills@my-claude-plugins
+/plugin install git-skills@ai-agent-plugins
 /reload-plugins
 ```
 
 ### Codex
 
 ```bash
-codex plugin marketplace add /absolute/path/to/my-claude-plugins
-codex plugin add git-skills@my-claude-plugins
+codex plugin marketplace add /absolute/path/to/ai-agent-plugins
+codex plugin add git-skills@ai-agent-plugins
 ```
 
 ## Usage
@@ -109,8 +109,8 @@ skills/
 ## Local Development
 
 ```bash
-/plugin marketplace add /absolute/path/to/my-claude-plugins
-/plugin install git-skills@my-claude-plugins
+/plugin marketplace add /absolute/path/to/ai-agent-plugins
+/plugin install git-skills@ai-agent-plugins
 /reload-plugins
 ```
 

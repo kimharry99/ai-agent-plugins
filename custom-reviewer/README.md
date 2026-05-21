@@ -33,7 +33,7 @@ This plugin is for Claude Code and Codex users who want PR-style reviews or plan
 Install the plugin:
 
 ```bash
-/plugin install custom-reviewer@my-claude-plugins
+/plugin install custom-reviewer@ai-agent-plugins
 ```
 
 Reload plugins:
@@ -47,8 +47,8 @@ Reload plugins:
 Add this repository as a local Codex marketplace, then install the plugin:
 
 ```bash
-codex plugin marketplace add /absolute/path/to/my-claude-plugins
-codex plugin add custom-reviewer@my-claude-plugins
+codex plugin marketplace add /absolute/path/to/ai-agent-plugins
+codex plugin add custom-reviewer@ai-agent-plugins
 ```
 
 After Claude Code install, you should see:
@@ -164,11 +164,11 @@ You can develop and test this plugin against itself — no publish step needed.
 
 ```bash
 # From a target repo where you want to run reviews:
-/plugin marketplace add /absolute/path/to/my-claude-plugins
-/plugin install custom-reviewer@my-claude-plugins
+/plugin marketplace add /absolute/path/to/ai-agent-plugins
+/plugin install custom-reviewer@ai-agent-plugins
 /reload-plugins
 ```
 
 Then edit files in this repo and run `/reload-plugins` in the target session to pick up the changes. `/code-review` writes its diff to `<target-repo>/.claude/tmp/`, not into this plugin's repo.
 
-For Codex, re-run `codex plugin marketplace add /absolute/path/to/my-claude-plugins` in an isolated `CODEX_HOME` or remove and reinstall the plugin after editing metadata.
+For Codex, re-run `codex plugin marketplace add /absolute/path/to/ai-agent-plugins` in an isolated `CODEX_HOME` or remove and reinstall the plugin after editing metadata.
