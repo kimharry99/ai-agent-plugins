@@ -1,7 +1,7 @@
 {
   "name": "my-claude-plugins",
   "interface": {
-    "displayName": "My Claude Plugins"
+    "displayName": "My AI Coding Plugins"
   },
   "plugins": [
     {

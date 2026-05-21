@@ -59,19 +59,19 @@ The Codex manifests should include only fields accepted by the local validator: 
 
 ### 2.2 Implementation Todo
 
-[High-level] Build the Codex layer in small, reviewable steps so validation failures identify a single class of issue at a time.
+[High-level] The Codex layer was built in small, reviewable steps so validation failures identified a single class of issue at a time.
 
-[Detail]
+[Detail] Completion state after implementation:
 
-- [ ] Create `.codex-plugin/plugin.json` for `custom-reviewer` with display metadata, capabilities, starter prompts, and `skills: "skills"`.
-- [ ] Create `.codex-plugin/plugin.json` for `git-skills` with display metadata focused on GitHub PR lifecycle skills and `skills: "skills"`.
-- [ ] Create `.codex-plugin/plugin.json` for `python-harness` with display metadata for Python rule guidance and `skills: "skills"`, while deliberately omitting `hooks`.
-- [ ] Create `.agents/plugins/marketplace.json` as the repo-local Codex marketplace catalog with entries for all three plugins, installation policy `AVAILABLE`, authentication policy `ON_INSTALL`, and category `Productivity`.
-- [ ] Update the root `README.md` so the repository is described as a Claude Code and Codex plugin collection, with separate installation sections for each host.
-- [ ] Update each plugin README only where host behavior differs, especially the `python-harness` hook limitation under Codex.
-- [ ] Run the Codex plugin validator for all three plugin roots and fix any manifest/schema failures.
-- [ ] Run JSON syntax checks for every new or changed JSON file.
-- [ ] Review the final diff to ensure no Claude plugin metadata was removed and no generated placeholder text remains.
+- [x] Create `.codex-plugin/plugin.json` for `custom-reviewer` with display metadata, capabilities, starter prompts, and `skills: "skills"`.
+- [x] Create `.codex-plugin/plugin.json` for `git-skills` with display metadata focused on GitHub PR lifecycle skills and `skills: "skills"`.
+- [x] Create `.codex-plugin/plugin.json` for `python-harness` with display metadata for Python rule guidance and `skills: "skills"`, while deliberately omitting `hooks`.
+- [x] Create `.agents/plugins/marketplace.json` as the repo-local Codex marketplace catalog with entries for all three plugins, installation policy `AVAILABLE`, authentication policy `ON_INSTALL`, and category `Productivity`.
+- [x] Update the root `README.md` so the repository is described as a Claude Code and Codex plugin collection, with separate installation sections for each host.
+- [x] Update each plugin README only where host behavior differs, especially the `python-harness` hook limitation under Codex.
+- [x] Run the Codex plugin validator for all three plugin roots and fix any manifest/schema failures.
+- [x] Run JSON syntax checks for every new or changed JSON file.
+- [x] Review the final diff to ensure no Claude plugin metadata was removed and no generated placeholder text remains.
 
 ### 2.3 Alternatives Considered
 

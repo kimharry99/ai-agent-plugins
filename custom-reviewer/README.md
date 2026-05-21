@@ -51,16 +51,18 @@ codex plugin marketplace add /absolute/path/to/my-claude-plugins
 codex plugin add custom-reviewer@my-claude-plugins
 ```
 
-After install, you should see:
+After Claude Code install, you should see:
 
 - the `/code-review` and `/plan-review` slash commands
 - the review contexts under `context/` (architect is active out of the box; performance is a reserved empty slot)
 
-A quick first run inside any git repo:
+A quick first Claude Code run inside any git repo:
 
-```bash
+```text
 /code-review
 ```
+
+In Codex, invoke the installed `code-review` or `plan-review` skill by name in your normal Codex session.
 
 ## Usage
 
