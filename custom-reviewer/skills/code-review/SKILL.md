@@ -56,7 +56,7 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
 4. **Collect outputs.** Each reviewer returns a Markdown block in the template from `@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`. Do not alter individual outputs.
 
 5. **Consolidate and report.** Before emitting, **deduplicate overlapping findings**. Two findings overlap when they describe the same underlying problem at the same (or adjacent, within ~2 lines) location — e.g. architect and comment both flagging a misleading docstring. For each overlap cluster:
-   - Keep the finding from the specialist whose context primarily owns the concern (comment-accuracy issues → `comment`; SOLID/DRY/KISS/YAGNI/boundary issues → `architect`).
+   - Keep the finding from the specialist whose context primarily owns the concern (comment-accuracy issues → `comment`; SOLID/DRY/KISS/YAGNI/boundary issues → `architect`; untested public behavior / missing regression tests → `test-coverage`).
    - Merge the other specialists into a single trailing tag on the kept finding: `(also flagged by <specialist>[, …])`.
    - Use the highest priority across the cluster.
    - Never drop a finding that raises priority over the kept one — upgrade the kept finding instead.
