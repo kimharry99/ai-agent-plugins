@@ -27,7 +27,7 @@ description: Runs specialist reviewers, auto-applies tactical fixes, requests us
 
 | Mode | Specialists |
 |---|---|
-| code | architect, comment, simplification |
+| code | architect, comment, simplification, test-coverage |
 | plan | architect, document-writing, plan-format |
 
 ## Workflow

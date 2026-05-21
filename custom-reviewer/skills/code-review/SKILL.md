@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (uncommitted changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context (currently: architect), then returns a consolidated summary."
+description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (uncommitted changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context, then returns a consolidated summary."
 ---
 
 # code-review
@@ -25,6 +25,7 @@ Orchestrates a multi-perspective review of a code diff. You (Claude) build a dif
 | architect      | `@${CLAUDE_PLUGIN_ROOT}/context/review-architect.md`      |
 | comment        | `@${CLAUDE_PLUGIN_ROOT}/context/review-comment.md`        |
 | simplification | `@${CLAUDE_PLUGIN_ROOT}/context/review-simplification.md` |
+| test-coverage  | `@${CLAUDE_PLUGIN_ROOT}/context/review-test-coverage.md`  |
 
 A context file that is empty or missing means the specialist is not yet ready — skip it. Add a new row here when a new `review-*.md` context is authored; no other edits are needed.
 
