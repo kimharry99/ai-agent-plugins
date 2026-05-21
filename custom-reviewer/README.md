@@ -1,15 +1,15 @@
 # custom-reviewer
 
-Multi-perspective code and plan reviews for Claude Code.
+Multi-perspective code and plan reviews for Claude Code and Codex.
 
-This plugin gives you two slash commands — `/code-review` and `/plan-review` — that fan out a shared file-based reviewer agent across every active "review context" in parallel, then consolidate the findings into a single Critical / Important / Suggestion summary.
+This plugin gives you two review skills, `code-review` and `plan-review`, that fan out a shared file-based reviewer agent across every active "review context" in parallel, then consolidate the findings into a single Critical / Important / Suggestion summary.
 
-This plugin is for Claude Code users who want PR-style reviews (or plan/spec sanity checks) from inside their normal workflow, with a pluggable way to add new review perspectives.
+This plugin is for Claude Code and Codex users who want PR-style reviews or plan/spec sanity checks from inside their normal workflow, with a pluggable way to add new review perspectives.
 
 ## What You Get
 
-- `/code-review` — review uncommitted changes or a branch diff (PR-style) through every active specialist in parallel
-- `/plan-review` — review a single plan/spec document (defaults to the latest file in `~/.claude/plans/`)
+- `code-review` — review uncommitted changes or a branch diff (PR-style) through every active specialist in parallel
+- `plan-review` — review a single plan/spec document (defaults to the latest file in `~/.claude/plans/` under Claude Code)
 - A shared `reviewer` agent with a strict, diff-anchored output template
 - A **pluggable review-context** system — drop a new `context/review-<name>.md` file to add a perspective
 - Shipped perspectives:
@@ -22,11 +22,13 @@ This plugin is for Claude Code users who want PR-style reviews (or plan/spec san
 
 ## Requirements
 
-- **Claude Code** with plugin support (`/plugin` command available)
+- **Claude Code** with plugin support (`/plugin` command available), or **Codex** with `codex plugin` support
 - **git** — the diff builders shell out to `git diff` / `git merge-base`
 - **bash** — for the diff-builder scripts under `skills/*/scripts/`
 
 ## Install
+
+### Claude Code
 
 Install the plugin:
 
@@ -40,16 +42,27 @@ Reload plugins:
 /reload-plugins
 ```
 
-After install, you should see:
+### Codex
+
+Add this repository as a local Codex marketplace, then install the plugin:
+
+```bash
+codex plugin marketplace add /absolute/path/to/my-claude-plugins
+codex plugin add custom-reviewer@my-claude-plugins
+```
+
+After Claude Code install, you should see:
 
 - the `/code-review` and `/plan-review` slash commands
 - the review contexts under `context/` (architect is active out of the box; performance is a reserved empty slot)
 
-A quick first run inside any git repo:
+A quick first Claude Code run inside any git repo:
 
-```bash
+```text
 /code-review
 ```
+
+In Codex, invoke the installed `code-review` or `plan-review` skill by name in your normal Codex session.
 
 ## Usage
 
@@ -157,3 +170,5 @@ You can develop and test this plugin against itself — no publish step needed.
 ```
 
 Then edit files in this repo and run `/reload-plugins` in the target session to pick up the changes. `/code-review` writes its diff to `<target-repo>/.claude/tmp/`, not into this plugin's repo.
+
+For Codex, re-run `codex plugin marketplace add /absolute/path/to/my-claude-plugins` in an isolated `CODEX_HOME` or remove and reinstall the plugin after editing metadata.

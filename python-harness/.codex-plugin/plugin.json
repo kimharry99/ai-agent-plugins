@@ -1,0 +1,34 @@
+{
+  "name": "python-harness",
+  "version": "0.3.0",
+  "description": "Python convention guidance for OOP structure, style, test layout, and test patterns.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  },
+  "keywords": [
+    "python",
+    "style",
+    "testing",
+    "guardrails"
+  ],
+  "skills": "skills",
+  "interface": {
+    "displayName": "Python Harness",
+    "shortDescription": "Use Python convention rules as Codex skill guidance.",
+    "longDescription": "Python Harness exposes Python OOP, style, test layout, and test pattern rules as reusable Codex skill guidance. Claude Code hook enforcement remains Claude-specific.",
+    "developerName": "dmkim",
+    "category": "Productivity",
+    "capabilities": [
+      "Python",
+      "Style Guidance",
+      "Testing Guidance"
+    ],
+    "defaultPrompt": [
+      "Apply the Python rules while editing.",
+      "Check this Python test layout.",
+      "Review this code against the Python harness."
+    ],
+    "brandColor": "#F59E0B"
+  }
+}

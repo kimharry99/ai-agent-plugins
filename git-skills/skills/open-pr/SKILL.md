@@ -58,7 +58,7 @@ Analyze ALL commits in `COMMITS_DETAIL` together as a unit, not one by one.
 ## Test Plan
 <testing steps as - [ ] checkboxes>
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+Generated with an AI coding assistant.
 ```
 
 ### Step 3 — create the PR

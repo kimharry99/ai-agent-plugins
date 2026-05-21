@@ -1,6 +1,6 @@
 # git-skills
 
-GitHub PR lifecycle skills for Claude Code.
+GitHub PR lifecycle skills for Claude Code and Codex.
 
 Covers the full PR workflow: creating PRs, rebase-merging, analyzing existing review feedback, and applying review fixes with commit & push then replying to threads.
 
@@ -17,16 +17,25 @@ All skills try GitHub MCP tools first and fall back to the `gh` CLI automaticall
 
 ## Requirements
 
-- **Claude Code** with plugin support
+- **Claude Code** with plugin support, or **Codex** with `codex plugin` support
 - **git** — branch state, push, rebase, fetch
 - **gh** (GitHub CLI) — fallback when GitHub MCP is unavailable; must be authenticated (`gh auth status`)
 - **GitHub MCP server** (optional but recommended) — detected at runtime via tool name patterns
 
 ## Install
 
+### Claude Code
+
 ```bash
 /plugin install git-skills@my-claude-plugins
 /reload-plugins
+```
+
+### Codex
+
+```bash
+codex plugin marketplace add /absolute/path/to/my-claude-plugins
+codex plugin add git-skills@my-claude-plugins
 ```
 
 ## Usage
@@ -83,6 +92,9 @@ Phase 1 — commits & pushes existing code changes with a review-summary message
 .claude-plugin/
 └── plugin.json
 
+.codex-plugin/
+└── plugin.json
+
 skills/
 ├── open-pr/
 │   └── SKILL.md
@@ -102,4 +114,4 @@ skills/
 /reload-plugins
 ```
 
-Edit SKILL.md files and run `/reload-plugins` to pick up changes.
+Edit SKILL.md files and run `/reload-plugins` to pick up changes in Claude Code. For Codex, reinstall the plugin from the local marketplace after changing metadata or skills.

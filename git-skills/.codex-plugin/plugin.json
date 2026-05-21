@@ -1,0 +1,34 @@
+{
+  "name": "git-skills",
+  "version": "0.3.2",
+  "description": "GitHub PR lifecycle skills for opening, merging, analyzing, and applying review feedback.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  },
+  "keywords": [
+    "git",
+    "github",
+    "pull-request",
+    "review"
+  ],
+  "skills": "skills",
+  "interface": {
+    "displayName": "Git Skills",
+    "shortDescription": "Manage GitHub PR workflows from Codex.",
+    "longDescription": "Git Skills adds reusable PR workflow skills for opening pull requests, rebase-merging, analyzing reviews, and applying review feedback.",
+    "developerName": "dmkim",
+    "category": "Productivity",
+    "capabilities": [
+      "Git",
+      "GitHub",
+      "Automation"
+    ],
+    "defaultPrompt": [
+      "Open a PR for this branch.",
+      "Analyze the reviews on this PR.",
+      "Apply the review feedback."
+    ],
+    "brandColor": "#16A34A"
+  }
+}

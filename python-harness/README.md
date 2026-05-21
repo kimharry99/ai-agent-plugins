@@ -1,13 +1,14 @@
 # python-harness
 
-Python convention guardrails for Claude Code.
+Python convention guardrails for Claude Code and rule guidance for Codex.
 
-This plugin enforces Python style and architectural rules automatically through two hooks — a session-start context injector and a post-write guardrail — without requiring any explicit slash commands.
+In Claude Code, this plugin enforces Python style and architectural rules automatically through two hooks: a session-start context injector and a post-write guardrail. In Codex, the same rule material is exposed as skill guidance; hook enforcement is not enabled because the Codex hook contract has not been validated for this plugin.
 
 ## What You Get
 
-- **SessionStart hook** — injects all rules from `rules/` as context at the start of every session, so Claude is always aware of the project conventions
-- **PostToolUse guardrail** — validates `.py` files on every Write or Edit tool call and blocks writes that contain violations
+- **Claude Code SessionStart hook** — injects all rules from `rules/` as context at the start of every session, so Claude is always aware of the project conventions
+- **Claude Code PostToolUse guardrail** — validates `.py` files on every Write or Edit tool call and blocks writes that contain violations
+- **Codex skill guidance** — exposes the Python rules through the `python-rules` skill without claiming write-blocking hook enforcement
 - Four built-in rule sets:
   - **oop** — Strict OOP: all functions and non-constant variables must live inside classes
   - **python-style** — Google Python Style Guide (docstrings, naming, imports, line length, type annotations)
@@ -16,12 +17,14 @@ This plugin enforces Python style and architectural rules automatically through 
 
 ## Requirements
 
-- **Claude Code** with plugin support (`/plugin` command available)
+- **Claude Code** with plugin support (`/plugin` command available), or **Codex** with `codex plugin` support for skill guidance
 - **bash** — for the hook scripts under `hooks/`
 - **jq** — for JSON handling in the PostToolUse guardrail
 - **python3** — for AST-based import validation in the guardrail
 
 ## Install
+
+### Claude Code
 
 Install the plugin:
 
@@ -39,9 +42,20 @@ After install, you should see the SessionStart hook fire at the beginning of you
 
 A quick first run inside any Python project: ask Claude to add a module-level function. The PostToolUse hook will block the write and explain why the OOP rule requires all functions to live inside a class.
 
+### Codex
+
+Add this repository as a local Codex marketplace, then install the plugin:
+
+```bash
+codex plugin marketplace add /absolute/path/to/my-claude-plugins
+codex plugin add python-harness@my-claude-plugins
+```
+
+In Codex, use the installed `python-rules` skill as guidance while editing Python projects. The Claude Code hook scripts are shipped in the repository but are not registered in the Codex manifest.
+
 ## Usage
 
-The plugin runs automatically — no explicit commands are needed.
+In Claude Code, the plugin runs automatically and no explicit commands are needed. In Codex, invoke or rely on the `python-rules` skill guidance when Python convention checks are relevant.
 
 ### SessionStart: rule injection
 
@@ -94,6 +108,9 @@ Test files (paths matching `*test_*`, `*_test.py`, `*/tests/*`, or `*/test/*`) a
 ├── plugin.json                    # Claude Code plugin manifest
 └── marketplace.json               # Self-hosted marketplace entry
 
+.codex-plugin/
+└── plugin.json                    # Codex plugin manifest
+
 hooks/
 ├── hooks.json                     # Hook event registrations
 ├── rule-reminder.sh               # SessionStart: reads rules/ and injects as context
@@ -124,3 +141,5 @@ You can develop and test this plugin against itself — no publish step needed.
 ```
 
 Then edit files in this repo and run `/reload-plugins` in the target session to pick up the changes.
+
+For Codex, reinstall the plugin from the local marketplace after changing metadata or skills.

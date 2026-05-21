@@ -1,0 +1,34 @@
+{
+  "name": "custom-reviewer",
+  "version": "0.5.0",
+  "description": "Multi-perspective code and plan reviews with pluggable specialist review contexts.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  },
+  "keywords": [
+    "review",
+    "code-review",
+    "plan-review",
+    "architecture"
+  ],
+  "skills": "skills",
+  "interface": {
+    "displayName": "Custom Reviewer",
+    "shortDescription": "Run multi-perspective code and plan reviews.",
+    "longDescription": "Custom Reviewer provides reusable skills for diff-anchored code reviews and plan reviews using specialist review contexts.",
+    "developerName": "dmkim",
+    "category": "Productivity",
+    "capabilities": [
+      "Review",
+      "Planning",
+      "Analysis"
+    ],
+    "defaultPrompt": [
+      "Review my current code changes.",
+      "Review this plan before implementation.",
+      "Check this diff for architecture risks."
+    ],
+    "brandColor": "#2563EB"
+  }
+}
