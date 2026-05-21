@@ -33,7 +33,7 @@
 [Detail] The implementation should treat the current layout as the source of truth:
 
 ```text
-my-claude-plugins/
+ai-agent-plugins/
 ├── .claude-plugin/marketplace.json
 ├── .agents/plugins/marketplace.json        # new Codex marketplace catalog
 ├── python-harness/

@@ -1,5 +1,5 @@
 {
-  "name": "my-claude-plugins",
+  "name": "ai-agent-plugins",
   "interface": {
     "displayName": "My AI Coding Plugins"
   },

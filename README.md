@@ -1,4 +1,4 @@
-# my-claude-plugins
+# ai-agent-plugins
 
 A personal plugin marketplace for Claude Code and Codex.
 
@@ -15,15 +15,15 @@ A personal plugin marketplace for Claude Code and Codex.
 Add this repository as a marketplace in Claude Code, then install individual plugins:
 
 ```text
-/plugin marketplace add kimharry99/my-claude-plugins
+/plugin marketplace add kimharry99/ai-agent-plugins
 ```
 
 Install only the plugins you need:
 
 ```text
-/plugin install python-harness@my-claude-plugins
-/plugin install custom-reviewer@my-claude-plugins
-/plugin install git-skills@my-claude-plugins
+/plugin install python-harness@ai-agent-plugins
+/plugin install custom-reviewer@ai-agent-plugins
+/plugin install git-skills@ai-agent-plugins
 ```
 
 ## Codex Installation
@@ -31,10 +31,10 @@ Install only the plugins you need:
 Add this repository as a local Codex marketplace, then install individual plugins:
 
 ```bash
-codex plugin marketplace add /absolute/path/to/my-claude-plugins
-codex plugin add python-harness@my-claude-plugins
-codex plugin add custom-reviewer@my-claude-plugins
-codex plugin add git-skills@my-claude-plugins
+codex plugin marketplace add /absolute/path/to/ai-agent-plugins
+codex plugin add python-harness@ai-agent-plugins
+codex plugin add custom-reviewer@ai-agent-plugins
+codex plugin add git-skills@ai-agent-plugins
 ```
 
 Codex reads marketplace metadata from `.agents/plugins/marketplace.json` and plugin metadata from each plugin's `.codex-plugin/plugin.json`.

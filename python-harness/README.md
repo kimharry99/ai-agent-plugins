@@ -29,7 +29,7 @@ In Claude Code, this plugin enforces Python style and architectural rules automa
 Install the plugin:
 
 ```bash
-/plugin install python-harness@my-claude-plugins
+/plugin install python-harness@ai-agent-plugins
 ```
 
 Reload plugins:
@@ -47,8 +47,8 @@ A quick first run inside any Python project: ask Claude to add a module-level fu
 Add this repository as a local Codex marketplace, then install the plugin:
 
 ```bash
-codex plugin marketplace add /absolute/path/to/my-claude-plugins
-codex plugin add python-harness@my-claude-plugins
+codex plugin marketplace add /absolute/path/to/ai-agent-plugins
+codex plugin add python-harness@ai-agent-plugins
 ```
 
 In Codex, use the installed `python-rules` skill as guidance while editing Python projects. The Claude Code hook scripts are shipped in the repository but are not registered in the Codex manifest.
@@ -135,8 +135,8 @@ You can develop and test this plugin against itself — no publish step needed.
 
 ```bash
 # From a target repo where you want to run reviews:
-/plugin marketplace add /absolute/path/to/my-claude-plugins
-/plugin install python-harness@my-claude-plugins
+/plugin marketplace add /absolute/path/to/ai-agent-plugins
+/plugin install python-harness@ai-agent-plugins
 /reload-plugins
 ```
 
