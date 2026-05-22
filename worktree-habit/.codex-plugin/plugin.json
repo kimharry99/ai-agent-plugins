@@ -1,0 +1,34 @@
+{
+  "name": "worktree-habit",
+  "version": "0.1.0",
+  "description": "Worktree-first workflow guidance for avoiding source edits directly on main.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  },
+  "keywords": [
+    "git",
+    "worktree",
+    "workflow",
+    "branching"
+  ],
+  "skills": "skills",
+  "interface": {
+    "displayName": "Worktree Habit",
+    "shortDescription": "Use Git worktrees before editing on main.",
+    "longDescription": "Worktree Habit provides reusable guidance for checking the current branch before code changes, creating an in-repo Git worktree from main, and continuing work from that worktree in the same session.",
+    "developerName": "dmkim",
+    "category": "Productivity",
+    "capabilities": [
+      "Git",
+      "Worktree Guidance",
+      "Workflow Guardrails"
+    ],
+    "defaultPrompt": [
+      "Use a worktree before editing on main.",
+      "Set up a feature worktree for this change.",
+      "Check whether this task needs a worktree."
+    ],
+    "brandColor": "#0F766E"
+  }
+}

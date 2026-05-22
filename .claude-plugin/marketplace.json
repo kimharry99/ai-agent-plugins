@@ -19,6 +19,11 @@
       "name": "git-skills",
       "source": "./git-skills",
       "description": "GitHub PR lifecycle skills — open, rebase-merge, analyze reviews, and reply to review threads."
+    },
+    {
+      "name": "worktree-habit",
+      "source": "./worktree-habit",
+      "description": "Worktree-first guidance for creating in-repo feature worktrees before editing on main."
     }
   ]
 }
