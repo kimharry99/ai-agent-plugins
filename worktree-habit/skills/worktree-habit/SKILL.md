@@ -57,15 +57,15 @@ When running Python commands from a worktree, prepend the worktree root to
 `PYTHONPATH` so the worktree source takes priority:
 
 ```bash
-PYTHONPATH=$PWD:$PYTHONPATH python -m <module_name> ...
+PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}" python -m <module_name> ...
 ```
 
 Use the same pattern for tests, scripts, and one-off Python commands whenever
 the project imports local source code:
 
 ```bash
-PYTHONPATH=$PWD:$PYTHONPATH pytest
-PYTHONPATH=$PWD:$PYTHONPATH python scripts/example.py
+PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}" pytest
+PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}" python scripts/example.py
 ```
 
 ## Collision handling

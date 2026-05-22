@@ -40,8 +40,8 @@ For Python projects installed with `pip install -e .`, run Python commands from
 the worktree with `PYTHONPATH` pointing at the worktree first:
 
 ```bash
-PYTHONPATH=$PWD:$PYTHONPATH pytest
-PYTHONPATH=$PWD:$PYTHONPATH python -m <module_name> ...
+PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}" pytest
+PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}" python -m <module_name> ...
 ```
 
 ## Repo Layout
