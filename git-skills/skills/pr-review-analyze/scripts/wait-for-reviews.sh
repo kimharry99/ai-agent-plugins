@@ -9,7 +9,7 @@ PR="$3"
 
 while true; do
   if ! count=$(gh api "repos/$OWNER/$REPO/pulls/$PR/reviews" --jq 'length'); then
-    echo "Failed to fetch reviews for PR #$PR." >&2
+    echo "Failed to fetch reviews for $OWNER/$REPO#$PR." >&2
     exit 1
   fi
   if [ "$count" -gt 0 ]; then
