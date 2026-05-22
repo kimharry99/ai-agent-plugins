@@ -9,6 +9,7 @@ A personal plugin marketplace for Claude Code and Codex.
 | [python-harness](./python-harness/) | Python convention guidance for OOP, style, test layout, and test patterns. Claude Code also gets hook enforcement. |
 | [custom-reviewer](./custom-reviewer/) | Multi-perspective code and plan reviews via specialist review contexts. |
 | [git-skills](./git-skills/) | GitHub PR lifecycle skills for opening PRs, merging, analyzing reviews, and applying feedback. |
+| [worktree-habit](./worktree-habit/) | Worktree-first guidance for creating feature worktrees before editing on `main`. |
 
 ## Claude Code Installation
 
@@ -24,6 +25,7 @@ Install only the plugins you need:
 /plugin install python-harness@ai-agent-plugins
 /plugin install custom-reviewer@ai-agent-plugins
 /plugin install git-skills@ai-agent-plugins
+/plugin install worktree-habit@ai-agent-plugins
 ```
 
 ## Codex Installation
@@ -35,6 +37,7 @@ codex plugin marketplace add /absolute/path/to/ai-agent-plugins
 codex plugin add python-harness@ai-agent-plugins
 codex plugin add custom-reviewer@ai-agent-plugins
 codex plugin add git-skills@ai-agent-plugins
+codex plugin add worktree-habit@ai-agent-plugins
 ```
 
 Codex reads marketplace metadata from `.agents/plugins/marketplace.json` and plugin metadata from each plugin's `.codex-plugin/plugin.json`.

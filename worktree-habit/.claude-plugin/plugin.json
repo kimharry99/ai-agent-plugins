@@ -1,0 +1,9 @@
+{
+  "name": "worktree-habit",
+  "version": "0.1.0",
+  "description": "Worktree-first workflow guidance for avoiding source edits directly on main.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  }
+}
