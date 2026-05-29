@@ -5,18 +5,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/rule-reminder.sh"
+            "command": "bash -c 'ROOT=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}\"; [ -n \"$ROOT\" ] || exit 0; SCRIPT=\"$ROOT/hooks/rule-reminder.sh\"; [ -f \"$SCRIPT\" ] || exit 0; exec bash \"$SCRIPT\"'"
           }
         ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Write|Edit",
+        "matcher": "Write|Edit|apply_patch",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/check-python-rules.sh"
+            "command": "bash -c 'ROOT=\"${PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-}}\"; [ -n \"$ROOT\" ] || exit 0; SCRIPT=\"$ROOT/hooks/check-python-rules.sh\"; [ -f \"$SCRIPT\" ] || exit 0; exec bash \"$SCRIPT\"'"
           }
         ]
       }
