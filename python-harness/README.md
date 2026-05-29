@@ -1,14 +1,14 @@
 # python-harness
 
-Python convention guardrails for Claude Code and rule guidance for Codex.
+Python convention guardrails for Claude Code and Codex.
 
-In Claude Code, this plugin enforces Python style and architectural rules automatically through two hooks: a session-start context injector and a post-write guardrail. In Codex, the same rule material is exposed as skill guidance; hook enforcement is not enabled because the Codex hook contract has not been validated for this plugin.
+In Claude Code and Codex, this plugin enforces Python style and architectural rules through two hooks: a session-start context injector and a post-write guardrail. Codex also exposes the same rule material through the `python-rules` skill.
 
 ## What You Get
 
-- **Claude Code SessionStart hook** — injects all rules from `rules/` as context at the start of every session, so Claude is always aware of the project conventions
-- **Claude Code PostToolUse guardrail** — validates `.py` files on every Write or Edit tool call and blocks writes that contain violations
-- **Codex skill guidance** — exposes the Python rules through the `python-rules` skill without claiming write-blocking hook enforcement
+- **SessionStart hook** — injects all rules from `rules/` as context at the start of every session, so the agent is always aware of the project conventions
+- **PostToolUse guardrail** — validates `.py` files on every Write/Edit or Codex `apply_patch` tool call and blocks writes that contain violations
+- **Codex skill guidance** — exposes the Python rules through the `python-rules` skill for tasks that need explicit rule binding
 - Four built-in rule sets:
   - **oop** — Strict OOP: all functions and non-constant variables must live inside classes
   - **python-style** — Google Python Style Guide (docstrings, naming, imports, line length, type annotations)
@@ -17,7 +17,7 @@ In Claude Code, this plugin enforces Python style and architectural rules automa
 
 ## Requirements
 
-- **Claude Code** with plugin support (`/plugin` command available), or **Codex** with `codex plugin` support for skill guidance
+- **Claude Code** with plugin support (`/plugin` command available), or **Codex** with `codex plugin` support
 - **bash** — for the hook scripts under `hooks/`
 - **jq** — for JSON handling in the PostToolUse guardrail
 - **python3** — for AST-based import validation in the guardrail
@@ -51,33 +51,33 @@ codex plugin marketplace add /absolute/path/to/ai-agent-plugins
 codex plugin add python-harness@ai-agent-plugins
 ```
 
-In Codex, use the installed `python-rules` skill as guidance while editing Python projects. The Claude Code hook scripts are shipped in the repository but are not registered in the Codex manifest.
+In Codex, the plugin-bundled hooks are loaded from `hooks/hooks.json` and use `PLUGIN_ROOT` to find the installed plugin root. Codex requires hook trust review, so re-trust the hook definition when prompted after installing or updating this plugin. You can also use the installed `python-rules` skill as explicit guidance while editing Python projects.
 
 ## Usage
 
-In Claude Code, the plugin runs automatically and no explicit commands are needed. In Codex, invoke or rely on the `python-rules` skill guidance when Python convention checks are relevant.
+In Claude Code and Codex, the plugin hooks run automatically after the host trusts them. In Codex, invoke or rely on the `python-rules` skill guidance when Python convention checks are relevant.
 
 ### SessionStart: rule injection
 
-At the start of every session, `hooks/rule-reminder.sh` reads all `.md` files from the `rules/` directory and injects their content into the session context. Claude receives a formatted reminder of every active rule before any work begins.
+At the start of every session, `hooks/rule-reminder.sh` reads all `.md` files from the `rules/` directory and injects their content into the session context. The agent receives a formatted reminder of every active rule before any work begins.
 
 ### PostToolUse: write guardrail
 
-When Claude uses the Write or Edit tool on a `.py` file, `hooks/check-python-rules.sh` validates the file and blocks the write if any of the following violations are found:
+When the agent uses the Write/Edit or Codex `apply_patch` tool on a `.py` file, `hooks/check-python-rules.sh` validates the file and blocks the write if any of the following violations are found:
 
 | Check | Applies to | What it catches |
 |-------|-----------|-----------------|
 | Banned builtins | All `.py` files | Use of `setattr`, `getattr`, or `hasattr` |
 | Inline imports | Non-test `.py` files | `import` statements inside functions, methods, or conditionals |
 
-If a violation is detected, Claude receives a block decision with a description of the problem and must fix it before the file can be written. If no violations are found, the hook exits silently and the write proceeds.
+If a violation is detected, the agent receives a block decision with a description of the problem and must fix it before the file can be written. If no violations are found, the hook exits silently and the write proceeds.
 
 Test files (paths matching `*test_*`, `*_test.py`, `*/tests/*`, or `*/test/*`) are exempt from the inline import check.
 
 ## How It Works
 
-1. **Session begins** — `rule-reminder.sh` scans `rules/` for all `.md` files, concatenates their content with formatting, and returns an `additionalContext` JSON payload that Claude Code injects into the session prompt.
-2. **Claude writes a `.py` file** — `check-python-rules.sh` receives the file path from the tool call, runs the banned-builtin scan and the AST-based inline import check.
+1. **Session begins** — `rule-reminder.sh` scans `rules/` for all `.md` files, concatenates their content with formatting, and returns an additional-context JSON payload that the host injects into the session prompt.
+2. **The agent writes a `.py` file** — `check-python-rules.sh` receives the file path or extracts it from a Codex `apply_patch` command, then runs the banned-builtin scan and the AST-based inline import check.
 3. **Violations found** — the hook returns `{"decision": "block", "reason": "..."}` with the first violation details, preventing the write.
 4. **No violations** — the hook exits with no output and the write proceeds normally.
 
@@ -127,7 +127,7 @@ skills/
     └── SKILL.md                   # Aggregates rules/*.md for /goal condition binding
 ```
 
-Hook definitions and scripts reference other plugin files using `${CLAUDE_PLUGIN_ROOT}/...`, so the layout above is the canonical plugin root.
+Hook definitions resolve other plugin files through `PLUGIN_ROOT` in Codex and `CLAUDE_PLUGIN_ROOT` in Claude Code, so the layout above is the canonical plugin root.
 
 ## Local Development
 
@@ -142,4 +142,4 @@ You can develop and test this plugin against itself — no publish step needed.
 
 Then edit files in this repo and run `/reload-plugins` in the target session to pick up the changes.
 
-For Codex, reinstall the plugin from the local marketplace after changing metadata or skills.
+For Codex, reinstall the plugin from the local marketplace after changing metadata, skills, or hooks. Start a new thread and re-trust changed hooks when prompted so Codex picks up the updated definition.
