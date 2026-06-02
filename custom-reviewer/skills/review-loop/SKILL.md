@@ -45,7 +45,7 @@ description: Runs specialist reviewers, synthesizes their outputs, auto-applies 
    - `applied_changes` — one aggregated summary per iteration (all fixes applied in that iteration combined into a single entry, mirroring the Final Report's "Iteration N" rows).
    - `fixed_decisions` — structured record of every applied fix: `{file, approx_location, description, reason, iteration}`.
 
-4. **LOOP — repeat steps a–k:**
+4. **LOOP — repeat steps a–m:**
 
    a. **Enumerate active specialists.** Confirm each context file exists and is non-empty; skip missing or empty context files and warn the user which specialist was skipped (if all are skipped, apply the rule in the Rules section).
 
@@ -97,33 +97,33 @@ description: Runs specialist reviewers, synthesizes their outputs, auto-applies 
 
       The synthesizer classifies findings with `ACCEPT`, `COMBINE`, `DISMISS`, `CONFLICT`, or `NEEDS_DECISION` using `@${CLAUDE_PLUGIN_ROOT}/docs/review_synthesis.md`. The rest of the loop uses the synthesized priority buckets, not the raw specialist outputs.
 
-   e-bis. **Handle conflicts and required decisions.** For each synthesized `[CONFLICT]` or `[NEEDS_DECISION]` finding, present the finding and the reason it cannot be auto-applied:
+   e. **Handle conflicts and required decisions.** For each synthesized `[CONFLICT]` or `[NEEDS_DECISION]` finding, present the finding and the reason it cannot be auto-applied:
       - For `[CONFLICT]`, present the competing recommendations and ask which direction wins. If it contradicts a previous fix, include the previous fix: `contradicts fix from iteration <N>: "<previous description>"`.
       - For `[NEEDS_DECISION]`, present the finding and ask whether to apply its recommended direction.
 
       Apply the chosen fix and update `fixed_decisions`, `applied_changes`, `declined_issues`, and the conflict-resolution log accordingly; or add the finding to `declined_issues` if the user declines it.
 
-   e. **Check termination (APPROVED only).** If the synthesized verdict is `APPROVE` and no Critical or Important findings remain in the synthesized output → break loop.
+   f. **Check termination (APPROVED only).** If the synthesized verdict is `APPROVE` and no Critical or Important findings remain in the synthesized output → break loop.
 
-   f. **Classify all non-conflict synthesized findings** (Critical, Important, and Suggestions) into two buckets:
+   g. **Classify all non-conflict synthesized findings** (Critical, Important, and Suggestions) into two buckets:
 
       - **Directional** (user approval required): the fix requires changing the *fundamental design direction or architecture* of a component — a different overall approach is needed, not just correcting an existing implementation (e.g. rewriting a stateless module as a class).
       - **Tactical** (auto-apply): everything else — comment fixes, dead code removal, renames, multi-file refactors, or any other localized change (e.g. renaming a method).
 
-   g. **Handle directional findings.** For each directional finding: skip without re-prompting if its description substantially matches an entry in `declined_issues`. Otherwise:
+   h. **Handle directional findings.** For each directional finding: skip without re-prompting if its description substantially matches an entry in `declined_issues`. Otherwise:
       - Present the finding and its fix recommendation to the user.
-      - If approved: apply the fix with Edit/Write tools; collect a one-line fix note (to be combined into `applied_changes` at step k); add a structured entry to `fixed_decisions`.
+      - If approved: apply the fix with Edit/Write tools; collect a one-line fix note (to be combined into `applied_changes` at step m); add a structured entry to `fixed_decisions`.
       - If declined: add the finding's description to `declined_issues`.
 
-   h. **Apply tactical findings.** For each tactical finding, apply the fix directly with Edit/Write tools. When multiple findings target the same file, batch edits. Collect a one-line fix note per file touched (to be combined into `applied_changes` at step k); add a structured entry per fix to `fixed_decisions`.
+   i. **Apply tactical findings.** For each tactical finding, apply the fix directly with Edit/Write tools. When multiple findings target the same file, batch edits. Collect a one-line fix note per file touched (to be combined into `applied_changes` at step m); add a structured entry per fix to `fixed_decisions`.
 
-   i. **Check BLOCKED.** If no fixes were applied in this iteration (all findings matched entries in `declined_issues`) and termination is not yet met → break loop with BLOCKED.
+   j. **Check BLOCKED.** If no fixes were applied in this iteration (all findings matched entries in `declined_issues`) and termination is not yet met → break loop with BLOCKED.
 
-   i-bis. **Check TIMEOUT.** If `iteration >= max_iterations` → break loop. (Placing this after fix application ensures every iteration completes a full review→fix cycle before stopping.)
+   k. **Check TIMEOUT.** If `iteration >= max_iterations` → break loop. (Placing this after fix application ensures every iteration completes a full review→fix cycle before stopping.)
 
-   j. **Rebuild diff.** Re-run the same diff-building script with the original arguments. In plan mode, always pass `--plan <PLAN>` explicitly (using the value recorded in step 2) to guarantee the same plan file is reviewed across iterations. If exit code `2` (diff is now empty), treat as APPROVED.
+   l. **Rebuild diff.** Re-run the same diff-building script with the original arguments. In plan mode, always pass `--plan <PLAN>` explicitly (using the value recorded in step 2) to guarantee the same plan file is reviewed across iterations. If exit code `2` (diff is now empty), treat as APPROVED.
 
-   k. **Consolidate iteration summary.** Combine all fix notes collected in steps g and h during this iteration into a single entry appended to `applied_changes`. Then `iteration += 1`. Go to step 4a.
+   m. **Consolidate iteration summary.** Combine all fix notes collected in steps h and i during this iteration into a single entry appended to `applied_changes`. Then `iteration += 1`. Go to step 4a.
 
 5. **Emit final report** (see format below).
 

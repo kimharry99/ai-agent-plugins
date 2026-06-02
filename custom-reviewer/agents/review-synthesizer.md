@@ -112,5 +112,6 @@ For review-loop iterations:
 ```
 
 The caller may omit synthesis decision counts from user-facing single-pass
-review summaries, but review-loop uses them to decide what can be fixed
-automatically.
+review summaries. In review-loop, they are diagnostics/reporting metadata;
+auto-fixability is decided from the synthesized findings and their conflict or
+decision labels.
