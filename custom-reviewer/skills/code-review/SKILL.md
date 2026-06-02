@@ -1,11 +1,11 @@
 ---
 name: code-review
-description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (staged, unstaged, and untracked changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context, then returns a consolidated summary."
+description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (staged, unstaged, and untracked changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context, then uses the shared `review-synthesizer` agent to return a consolidated summary."
 ---
 
 # code-review
 
-Orchestrates a multi-perspective review of a code diff. Build a diff for the requested scope, spawn one reviewer subagent per active specialist context in parallel, and return a consolidated summary. For review of plan/spec documents, use the `plan-review` skill instead.
+Orchestrates a multi-perspective review of a code diff. Build a diff for the requested scope, spawn one reviewer subagent per active specialist context in parallel, synthesize the specialist outputs with the shared `review-synthesizer` agent, and return a consolidated summary. For review of plan/spec documents, use the `plan-review` skill instead.
 
 ## Scope modes
 
@@ -29,7 +29,7 @@ Orchestrates a multi-perspective review of a code diff. Build a diff for the req
 
 A context file that is empty or missing means the specialist is not yet ready — skip it. Add a new row here when a new `review-*.md` context is authored; no other edits are needed.
 
-The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@`-referenced documents inside a context file itself, so this skill only needs to point it at the context.
+The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@`-referenced documents inside a context file itself, so this skill only needs to point it at the context. The synthesizer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/review-synthesizer.md`) reads `@${CLAUDE_PLUGIN_ROOT}/docs/review_synthesis.md` and owns deduplication, conflict detection, and the final verdict.
 
 ## Workflow
 
@@ -55,18 +55,31 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
 
 4. **Collect outputs.** Each reviewer returns a Markdown block in the template from `@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`. Do not alter individual outputs.
 
-5. **Consolidate and report.** Before emitting, **deduplicate overlapping findings**. Two findings overlap when they describe the same underlying problem at the same (or adjacent, within ~2 lines) location — e.g. architect and comment both flagging a misleading docstring. For each overlap cluster:
-   - Keep the finding from the specialist whose context primarily owns the concern (comment-accuracy issues → `comment`; SOLID/DRY/KISS/YAGNI/boundary issues → `architect`; untested public behavior / missing regression tests → `test-coverage`).
-   - Merge the other specialists into a single trailing tag on the kept finding: `(also flagged by <specialist>[, …])`.
-   - Use the highest priority across the cluster.
-   - Never drop a finding that raises priority over the kept one — upgrade the kept finding instead.
+5. **Synthesize and report.** Invoke one synthesizer subagent after all specialist outputs are available:
 
-   Then emit the final summary in this exact shape:
+   ```
+   description: "code review synthesis"
+   subagent_type: "general-purpose"
+   prompt: |
+     Follow the instructions in @${CLAUDE_PLUGIN_ROOT}/agents/review-synthesizer.md exactly.
+     Diff file: <absolute DIFF_PATH from build_diff.sh>
+     Mode: code
+     Output header: Code Review Summary
+     Scope mode: <MODE from build_diff.sh>
+     [branch mode only] Base: <BASE from build_diff.sh>
+     Active specialists: <active specialists, comma-separated>
+     Review contexts:
+     - <specialist>: @${CLAUDE_PLUGIN_ROOT}/context/review-<specialist>.md
+     Specialist outputs:
+     <paste each specialist output verbatim, labeled by specialist>
+   ```
+
+   The synthesizer classifies specialist findings with `ACCEPT`, `COMBINE`, `DISMISS`, `CONFLICT`, or `NEEDS_DECISION` using `@${CLAUDE_PLUGIN_ROOT}/docs/review_synthesis.md`, then emits the final summary in this exact shape:
 
    ```markdown
    # Code Review Summary
 
-   **Mode:** <working | branch (base=<ref>)>  •  **Diff:** <DIFF_PATH>  •  **Specialists:** architect[, …]  •  **Overall Verdict:** APPROVE | REQUEST CHANGES
+   **Mode:** <working | branch (base=<ref>)>  •  **Diff:** <DIFF_PATH>  •  **Specialists:** <active specialists, comma-separated>  •  **Overall Verdict:** APPROVE | REQUEST CHANGES
 
    ## Consolidated Findings
    ### Critical
@@ -77,7 +90,7 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
    - [<perspective>] file:line — … [(also flagged by <specialist>)]
    ```
 
-   **Overall verdict** = `REQUEST CHANGES` if any specialist returned `REQUEST CHANGES` or reported a Critical finding; otherwise `APPROVE`.
+   **Overall verdict** is assigned by the synthesizer. It must be `REQUEST CHANGES` if any final Critical finding, `[CONFLICT]`, or `[NEEDS_DECISION]` remains; otherwise it may be `APPROVE`.
 
 ## Rules
 

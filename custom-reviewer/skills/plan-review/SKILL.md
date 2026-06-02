@@ -1,11 +1,11 @@
 ---
 name: plan-review
-description: Review a single plan/spec document by orchestrating specialist reviewer subagents. Use when the user asks to review a plan, review a spec, or sanity-check a draft plan file before implementation. Builds a unified diff treating the plan as a new file, fans out to the `reviewer` subagent once per active specialist review context, then returns a consolidated summary.
+description: Review a single plan/spec document by orchestrating specialist reviewer subagents. Use when the user asks to review a plan, review a spec, or sanity-check a draft plan file before implementation. Builds a unified diff treating the plan as a new file, fans out to the `reviewer` subagent once per active specialist review context, then uses the shared `review-synthesizer` agent to return a consolidated summary.
 ---
 
 # plan-review
 
-Orchestrates a multi-perspective review of a single plan document. Build a diff for the plan, spawn one reviewer subagent per active specialist context in parallel, and return a consolidated summary.
+Orchestrates a multi-perspective review of a single plan document. Build a diff for the plan, spawn one reviewer subagent per active specialist context in parallel, synthesize the specialist outputs with the shared `review-synthesizer` agent, and return a consolidated summary.
 
 ## Available specialists
 
@@ -17,9 +17,9 @@ Orchestrates a multi-perspective review of a single plan document. Build a diff 
 
 A context file that is empty or missing means the specialist is not yet ready — skip it. Add a new row here when a new `review-*.md` context should apply to plan reviews; no other edits are needed.
 
-Overlapping findings between specialists are expected and surfaced verbatim — `plan-review` does not deduplicate. The perspectives are intentionally complementary: `document-writing` owns Intro-Body-Conclusion / big-picture-first; `plan-format` owns the §1.1–§3.2 recommended subsection template (plus phase-presence and per-subsection quality); `architect` owns content/design judgments.
+Overlapping findings between specialists are expected because the perspectives are intentionally complementary: `document-writing` owns Intro-Body-Conclusion / big-picture-first; `plan-format` owns the §1.1–§3.2 recommended subsection template (plus phase-presence and per-subsection quality); `architect` owns content/design judgments. The synthesizer preserves complementary overlap, but may combine true duplicates or flag incompatible recommendations.
 
-The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@`-referenced documents inside a context file itself, so this skill only needs to point it at the context.
+The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@`-referenced documents inside a context file itself, so this skill only needs to point it at the context. The synthesizer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/review-synthesizer.md`) reads `@${CLAUDE_PLUGIN_ROOT}/docs/review_synthesis.md` and owns duplicate handling, conflict detection, and the final verdict.
 
 ## Workflow
 
@@ -46,7 +46,25 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
 
 4. **Collect outputs.** Each reviewer returns a Markdown block in the template from `@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`. Do not alter individual outputs.
 
-5. **Consolidate and report.** Emit the final summary in this shape. The `Specialists:` field is **not** a fixed enumeration — populate it with the comma-separated list of specialists actually run (the active list built in step 2). If a context file was empty or missing, the corresponding specialist must not appear on this line:
+5. **Synthesize and report.** Invoke one synthesizer subagent after all specialist outputs are available:
+
+   ```
+   description: "plan review synthesis"
+   subagent_type: "general-purpose"
+   prompt: |
+     Follow the instructions in @${CLAUDE_PLUGIN_ROOT}/agents/review-synthesizer.md exactly.
+     Diff file: <absolute DIFF_PATH from build_plan_diff.sh>
+     Mode: plan
+     Output header: Plan Review Summary
+     Plan: <PLAN from build_plan_diff.sh>
+     Active specialists: <active specialists, comma-separated>
+     Review contexts:
+     - <specialist>: @${CLAUDE_PLUGIN_ROOT}/context/review-<specialist>.md
+     Specialist outputs:
+     <paste each specialist output verbatim, labeled by specialist>
+   ```
+
+   The synthesizer classifies specialist findings with `ACCEPT`, `COMBINE`, `DISMISS`, `CONFLICT`, or `NEEDS_DECISION` using `@${CLAUDE_PLUGIN_ROOT}/docs/review_synthesis.md`, preserving complementary plan-review overlap. It emits the final summary in this shape. The `Specialists:` field is **not** a fixed enumeration — populate it with the comma-separated list of specialists actually run (the active list built in step 2). If a context file was empty or missing, the corresponding specialist must not appear on this line:
 
    ```markdown
    # Plan Review Summary
@@ -62,7 +80,7 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
    - [<perspective>] file:line — …
    ```
 
-   **Overall verdict** = `REQUEST CHANGES` if any specialist returned `REQUEST CHANGES` or reported a Critical finding; otherwise `APPROVE`.
+   **Overall verdict** is assigned by the synthesizer. It must be `REQUEST CHANGES` if any final Critical finding, `[CONFLICT]`, or `[NEEDS_DECISION]` remains; otherwise it may be `APPROVE`.
 
 ## Rules
 

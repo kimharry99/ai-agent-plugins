@@ -10,7 +10,7 @@
 
 Evaluate only the structure of plan documents that are added or modified in the diff. Do not surface findings about subsections outside the diff unless the new changes invalidate the overall phase structure (e.g., a whole phase was deleted).
 
-This context is **complementary** to `review-document-writing`: writing enforces general Intro-Body-Conclusion / Big-Picture-First principles on any document, while plan-format enforces the plan-specific phase requirement and the per-subsection quality bars from the recommended template. Overlapping findings (e.g., "no introduction at all") may legitimately surface from both perspectives — plan-review does not deduplicate.
+This context is **complementary** to `review-document-writing`: writing enforces general Intro-Body-Conclusion / Big-Picture-First principles on any document, while plan-format enforces the plan-specific phase requirement and the per-subsection quality bars from the recommended template. Overlapping findings (e.g., "no introduction at all") may legitimately surface from both perspectives; the review synthesizer preserves complementary overlap and only combines true duplicates.
 
 ## Checkpoints
 
