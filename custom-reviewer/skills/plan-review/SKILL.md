@@ -80,7 +80,7 @@ The reviewer subagent (`@${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`) reads any `@
    - [<perspective>] file:line — …
    ```
 
-   **Overall verdict** is assigned by the synthesizer. It must be `REQUEST CHANGES` if any final Critical finding, `[CONFLICT]`, or `[NEEDS_DECISION]` remains; otherwise it may be `APPROVE`.
+   **Overall verdict** is assigned by the synthesizer using the Verdict rule in `@${CLAUDE_PLUGIN_ROOT}/docs/review_synthesis.md`: it must be `REQUEST CHANGES` if any final Critical finding remains, any specialist requested changes for a finding that was not dismissed, or any `[CONFLICT]` / `[NEEDS_DECISION]` finding remains; otherwise it may be `APPROVE`.
 
 ## Rules
 

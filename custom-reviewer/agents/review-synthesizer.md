@@ -23,6 +23,10 @@ Every invocation must provide:
   specialists.
 - **Output header** (required): either `Code Review Summary`,
   `Plan Review Summary`, or `Review Loop Iteration Summary`.
+- **Header metadata** (required by mode): `Scope mode` for code reviews,
+  `Base` for branch reviews, `Plan` for plan reviews, and `Review mode` for
+  review-loop iterations. In review-loop, also include the applicable nested
+  metadata: `Scope mode` / `Base` for code loops or `Plan` for plan loops.
 - **Loop state** (optional): previously applied fixes and declined issues. This
   is provided only by `review-loop`.
 
