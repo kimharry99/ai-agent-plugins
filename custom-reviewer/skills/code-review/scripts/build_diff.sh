@@ -53,7 +53,28 @@ resolve_base() {
 }
 
 working_dirty() {
-    ! git diff --quiet HEAD 2>/dev/null || ! git diff --cached --quiet 2>/dev/null
+    ! git diff --quiet HEAD -- "${pathspecs[@]}" 2>/dev/null \
+        || ! git diff --cached --quiet -- "${pathspecs[@]}" 2>/dev/null \
+        || has_untracked_files
+}
+
+has_untracked_files() {
+    local file
+    while IFS= read -r -d '' file; do
+        return 0
+    done < <(list_untracked_files)
+    return 1
+}
+
+list_untracked_files() {
+    git ls-files --others --exclude-standard -z -- "${pathspecs[@]}" ':!.claude/tmp/**'
+}
+
+write_untracked_diff() {
+    local file
+    while IFS= read -r -d '' file; do
+        git diff --no-index --no-color -- /dev/null "$file" >> "$out" 2>/dev/null || true
+    done < <(list_untracked_files)
 }
 
 write_working_diff() {
@@ -61,6 +82,7 @@ write_working_diff() {
         git diff --cached -- "${pathspecs[@]}" 2>/dev/null || true
         git diff -- "${pathspecs[@]}" 2>/dev/null || true
     } >> "$out"
+    write_untracked_diff
 }
 
 write_branch_diff() {

@@ -74,7 +74,7 @@ Scope modes:
 
 | Mode | What it diffs |
 |---|---|
-| `working` | Uncommitted changes (staged + unstaged against HEAD) |
+| `working` | Uncommitted changes (staged + unstaged against HEAD, plus untracked files not ignored by git) |
 | `branch`  | `merge-base(<base>, HEAD)..HEAD` — PR-style. Working-tree changes, if any, are appended. |
 
 The skill auto-selects `working` vs `branch` based on git state; pass an explicit base with a branch request when you want PR-style review. Base resolution order: explicit base → upstream `@{u}` → `origin/HEAD` → `origin/main` / `origin/master` / `main` / `master`.
