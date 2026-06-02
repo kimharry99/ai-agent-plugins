@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (uncommitted changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context, then returns a consolidated summary."
+description: "Review code changes by orchestrating specialist reviewer subagents. Supports two scopes — `working` (staged, unstaged, and untracked changes in the working tree) and `branch` (PR-style, base branch → current HEAD, optionally including uncommitted work). Use when the user asks to review the working tree, review the current diff, run a code review, review before committing, or review a branch/PR against a base. Builds a diff file for the chosen scope, fans out to the `reviewer` subagent once per active specialist review context, then returns a consolidated summary."
 ---
 
 # code-review
@@ -11,7 +11,7 @@ Orchestrates a multi-perspective review of a code diff. Build a diff for the req
 
 | Mode | What it diffs |
 |---|---|
-| `working` | Uncommitted changes (staged + unstaged against HEAD). |
+| `working` | Uncommitted changes (staged + unstaged against HEAD, plus untracked files not ignored by git). |
 | `branch` | `merge-base(<base>, HEAD)..HEAD` — PR-style. Working-tree changes, if any, are appended. |
 
 **Auto-selection** (when the user doesn't specify a mode): the helper script decides. If HEAD == resolved base and the tree is dirty → `working`; if HEAD differs from base → `branch`; else stop with "nothing to review".
