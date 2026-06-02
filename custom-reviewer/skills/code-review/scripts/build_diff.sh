@@ -62,15 +62,19 @@ has_untracked_files() {
     local file
     while IFS= read -r -d '' file; do
         return 0
-    done < <(git ls-files --others --exclude-standard -z -- "${pathspecs[@]}" ':!.claude/tmp/**')
+    done < <(list_untracked_files)
     return 1
+}
+
+list_untracked_files() {
+    git ls-files --others --exclude-standard -z -- "${pathspecs[@]}" ':!.claude/tmp/**'
 }
 
 write_untracked_diff() {
     local file
     while IFS= read -r -d '' file; do
         git diff --no-index --no-color -- /dev/null "$file" >> "$out" 2>/dev/null || true
-    done < <(git ls-files --others --exclude-standard -z -- "${pathspecs[@]}" ':!.claude/tmp/**')
+    done < <(list_untracked_files)
 }
 
 write_working_diff() {
