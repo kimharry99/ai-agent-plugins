@@ -2,7 +2,7 @@
 
 Multi-perspective code and plan reviews for Claude Code and Codex.
 
-This plugin gives you two review skills, `code-review` and `plan-review`, that fan out a shared file-based reviewer agent across every active "review context" in parallel, then consolidate the findings into a single Critical / Important / Suggestion summary.
+This plugin gives you review skills that fan out a shared file-based reviewer agent across every active "review context" in parallel, then run a shared synthesizer agent to reconcile duplicates, conflicts, and the final verdict into a single Critical / Important / Suggestion summary.
 
 This plugin is for Claude Code and Codex users who want PR-style reviews or plan/spec sanity checks from inside their normal workflow, with a pluggable way to add new review perspectives.
 
@@ -10,7 +10,9 @@ This plugin is for Claude Code and Codex users who want PR-style reviews or plan
 
 - `code-review` — review uncommitted changes or a branch diff (PR-style) through every active specialist in parallel
 - `plan-review` — review a single plan/spec document (defaults to the latest file in `~/.claude/plans/` under Claude Code)
+- `review-loop` — repeat review/fix iterations using synthesized findings as the source of truth
 - A shared `reviewer` agent with a strict, diff-anchored output template
+- A shared `review-synthesizer` agent that classifies specialist findings as `ACCEPT`, `COMBINE`, `DISMISS`, `CONFLICT`, or `NEEDS_DECISION`
 - A **pluggable review-context** system — drop a new `context/review-<name>.md` file to add a perspective
 - Shipped perspectives:
   - **architect** (SOLID / DRY / KISS / YAGNI, module boundaries, dependency direction), backed by `docs/software_architecture.md`
@@ -53,7 +55,7 @@ codex plugin add custom-reviewer@ai-agent-plugins
 
 After Claude Code install, you should see:
 
-- the `/code-review` and `/plan-review` slash commands
+- the `/code-review`, `/plan-review`, and `/review-loop` slash commands
 - the review contexts under `context/` (architect is active out of the box; performance is a reserved empty slot)
 
 A quick first Claude Code run inside any git repo:
@@ -62,7 +64,7 @@ A quick first Claude Code run inside any git repo:
 /code-review
 ```
 
-In Codex, invoke the installed `code-review` or `plan-review` skill by name in your normal Codex session.
+In Codex, invoke the installed `code-review`, `plan-review`, or `review-loop` skill by name in your normal Codex session.
 
 ## Usage
 
@@ -107,13 +109,27 @@ Output: a `# Plan Review Summary` block with the same Critical / Important / Sug
 
 This command is read-only.
 
+### `/review-loop`
+
+Runs the specialist review pipeline repeatedly, synthesizes the findings each
+iteration, applies tactical fixes, and asks before applying conflicts or
+directional changes. It stops when the synthesized review is approved, the diff
+becomes empty, the loop is blocked, or 10 iterations are reached.
+
+Examples:
+
+```text
+Run a review loop on my working tree.
+Run a review loop for the latest plan.
+```
+
 ## How It Works
 
 1. The skill's helper script builds a unified diff and writes it under `.claude/tmp/`.
 2. The skill enumerates active specialists — every row in its *Available specialists* table whose review-context file exists and is non-empty. Empty or missing contexts are skipped automatically.
 3. It spawns one `general-purpose` subagent per specialist **in parallel**, each instructed to follow `agents/reviewer.md` exactly with the diff path and the review-context path injected.
 4. Each reviewer reads any `@`-referenced docs from its context (e.g. the architect context pulls in `docs/software_architecture.md`), anchors findings to `file:line` inside the diff, and returns a Markdown block in the fixed reviewer template.
-5. The skill consolidates every reviewer's output. Overall verdict is `REQUEST CHANGES` if any specialist requested changes or reported a Critical finding; otherwise `APPROVE`.
+5. The skill sends the specialist outputs to `agents/review-synthesizer.md`, which uses `docs/review_synthesis.md` to combine duplicates, preserve or flag conflicts, and assign the final verdict.
 
 ## Adding a New Perspective
 
@@ -133,7 +149,8 @@ This command is read-only.
 └── marketplace.json                   # Self-hosted marketplace entry
 
 agents/
-└── reviewer.md                        # file-based reviewer contract (template + rules)
+├── reviewer.md                        # file-based reviewer contract (template + rules)
+└── review-synthesizer.md              # reconciles specialist findings
 
 context/
 ├── review-architect.md                # SOLID / DRY / KISS / YAGNI + boundaries
@@ -145,15 +162,18 @@ context/
 
 docs/
 ├── plan_format.md                     # referenced by the plan-format context
+├── review_synthesis.md                # shared synthesis rules
 └── software_architecture.md           # referenced by the architect context
 
 skills/
 ├── code-review/
 │   ├── SKILL.md
 │   └── scripts/build_diff.sh
-└── plan-review/
-    ├── SKILL.md
-    └── scripts/build_plan_diff.sh
+├── plan-review/
+│   ├── SKILL.md
+│   └── scripts/build_plan_diff.sh
+└── review-loop/
+    └── SKILL.md
 ```
 
 All cross-file references inside the plugin (skills → agent, contexts → docs) are written as `@${CLAUDE_PLUGIN_ROOT}/...`, so the layout above is the canonical plugin root.

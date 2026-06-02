@@ -1,7 +1,7 @@
 {
   "name": "custom-reviewer",
   "version": "0.5.0",
-  "description": "Multi-perspective code and plan reviews with pluggable specialist review contexts.",
+  "description": "Multi-perspective code and plan reviews with pluggable contexts and synthesized verdicts.",
   "author": {
     "name": "dmkim",
     "email": "kimharry9927@gmail.com"
@@ -15,8 +15,8 @@
   "skills": "skills",
   "interface": {
     "displayName": "Custom Reviewer",
-    "shortDescription": "Run multi-perspective code and plan reviews.",
-    "longDescription": "Custom Reviewer provides reusable skills for diff-anchored code reviews and plan reviews using specialist review contexts.",
+    "shortDescription": "Run synthesized multi-perspective reviews.",
+    "longDescription": "Custom Reviewer provides reusable skills for diff-anchored code reviews, plan reviews, and review loops using specialist contexts plus a shared synthesis pass.",
     "developerName": "dmkim",
     "category": "Productivity",
     "capabilities": [
@@ -27,7 +27,8 @@
     "defaultPrompt": [
       "Review my current code changes.",
       "Review this plan before implementation.",
-      "Check this diff for architecture risks."
+      "Check this diff for architecture risks.",
+      "Run a review loop on my working tree."
     ],
     "brandColor": "#2563EB"
   }
