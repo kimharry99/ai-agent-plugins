@@ -1,14 +1,18 @@
 # custom-reviewer
 
-Multi-perspective code and plan reviews for Claude Code and Codex.
+Multi-perspective code reviews, reviewable plan drafting, and plan reviews for
+Claude Code and Codex.
 
 This plugin gives you review skills that fan out a shared file-based reviewer agent across every active "review context" in parallel, then run a shared synthesizer agent to reconcile duplicates, conflicts, and the final verdict into a single Critical / Important / Suggestion summary.
 
-This plugin is for Claude Code and Codex users who want PR-style reviews or plan/spec sanity checks from inside their normal workflow, with a pluggable way to add new review perspectives.
+This plugin is for Claude Code and Codex users who want PR-style reviews,
+reviewable plan/spec drafting, or plan/spec sanity checks from inside their
+normal workflow, with a pluggable way to add new review perspectives.
 
 ## What You Get
 
 - `code-review` — review uncommitted changes or a branch diff (PR-style) through every active specialist in parallel
+- `write-reviewable-plan` — draft or revise plans/specs so they are ready for `plan-review`
 - `plan-review` — review a single plan/spec document (defaults to the latest file in `~/.claude/plans/` under Claude Code)
 - `review-loop` — repeat review/fix iterations using synthesized findings as the source of truth
 - A shared `reviewer` agent with a strict, diff-anchored output template
@@ -19,7 +23,7 @@ This plugin is for Claude Code and Codex users who want PR-style reviews or plan
   - **comment** (code-comment accuracy, staleness, and long-term maintainability; `/code-review` only)
   - **simplification** (local clarity — naming, nesting, dead code, redundant patterns, idiom fit; `/code-review` only)
   - **document-writing** (Intro-Body-Conclusion structure, big-picture-first flow; `/plan-review` only)
-  - **plan-format** (the Introduction / Body / Conclusion skeleton and its required subsections — §1.1 Context, §1.2 Goal, §1.3 Non-goals, §2.1 Proposed Approach, §2.2 Alternatives Considered, §2.3 Risks / Trade-offs, §2.4 Test / Validation Plan, §3.1 Summary, §3.2 Open Questions; `/plan-review` only), backed by `docs/plan_format.md`
+  - **plan-format** (the Introduction / Body / Conclusion skeleton and its recommended subsections — §1.1 Context, §1.2 Goal, §1.3 Non-goals, §2.1 Proposed Approach, §2.2 Alternatives Considered, §2.3 Risks / Trade-offs, §2.4 Test / Validation Plan, §3.1 Summary, §3.2 Open Questions; `/plan-review` only), backed by `docs/plan_format.md`
 - Reserved slot: **performance** (empty placeholder, activates automatically once you fill it in)
 
 ## Requirements
@@ -56,6 +60,7 @@ codex plugin add custom-reviewer@ai-agent-plugins
 After Claude Code install, you should see:
 
 - the `/code-review`, `/plan-review`, and `/review-loop` slash commands
+- the `write-reviewable-plan` skill for drafting plan-reviewable documents
 - the review contexts under `context/` (architect is active out of the box; performance is a reserved empty slot)
 
 A quick first Claude Code run inside any git repo:
@@ -64,7 +69,7 @@ A quick first Claude Code run inside any git repo:
 /code-review
 ```
 
-In Codex, invoke the installed `code-review`, `plan-review`, or `review-loop` skill by name in your normal Codex session.
+In Codex, invoke the installed `code-review`, `write-reviewable-plan`, `plan-review`, or `review-loop` skill by name in your normal Codex session.
 
 ## Usage
 
@@ -108,6 +113,23 @@ Review the plan at ~/.claude/plans/foo.md.
 Output: a `# Plan Review Summary` block with the same Critical / Important / Suggestion structure.
 
 This command is read-only.
+
+### `write-reviewable-plan`
+
+Drafts or revises an implementation, experiment, documentation, operation, or
+research plan so it is ready for `plan-review`.
+
+It uses `docs/plan_format.md` as the shared writing and review contract:
+Introduction, Body, and Conclusion are mandatory top-level phases; recommended
+subsections are applied when relevant; validation belongs in the Body and must
+name concrete commands, artifacts, review gates, or manual scenarios.
+
+Examples:
+
+```text
+Use write-reviewable-plan to draft an implementation plan.
+Revise this spec so it is ready for plan-review.
+```
 
 ### `/review-loop`
 
@@ -156,12 +178,12 @@ context/
 ├── review-architect.md                # SOLID / DRY / KISS / YAGNI + boundaries
 ├── review-comment.md                  # code-comment accuracy & maintainability
 ├── review-document-writing.md         # Intro-Body-Conclusion + big-picture-first (plan-review)
-├── review-plan-format.md              # Introduction / Body / Conclusion skeleton + required subsections (plan-review)
+├── review-plan-format.md              # Introduction / Body / Conclusion skeleton + recommended subsections
 ├── review-simplification.md           # local clarity (naming, nesting, dead code, idiom fit)
 └── review-performance.md              # (placeholder — empty, reserved slot)
 
 docs/
-├── plan_format.md                     # referenced by the plan-format context
+├── plan_format.md                     # shared by write-reviewable-plan and plan-format review
 ├── review_synthesis.md                # shared synthesis rules
 └── software_architecture.md           # referenced by the architect context
 
@@ -169,6 +191,8 @@ skills/
 ├── code-review/
 │   ├── SKILL.md
 │   └── scripts/build_diff.sh
+├── write-reviewable-plan/
+│   └── SKILL.md
 ├── plan-review/
 │   ├── SKILL.md
 │   └── scripts/build_plan_diff.sh

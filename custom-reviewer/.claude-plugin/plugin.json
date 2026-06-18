@@ -1,7 +1,7 @@
 {
   "name": "custom-reviewer",
-  "version": "0.5.0",
-  "description": "Multi-perspective code & plan reviews for Claude Code — pluggable review contexts with a shared synthesis pass.",
+  "version": "0.6.0",
+  "description": "Multi-perspective code reviews, reviewable plan drafting, and plan reviews for Claude Code.",
   "author": {
     "name": "dmkim",
     "email": "kimharry9927@gmail.com"
