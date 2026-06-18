@@ -1,11 +1,15 @@
 ---
 name: plan_format
-summary: Reference document for plan-format review — the three-phase Introduction / Body / Conclusion structure, the required subsections under each phase, and flexibility rules.
+summary: Shared reference for writing and reviewing plans — the three-phase Introduction / Body / Conclusion structure, the recommended subsections under each phase, and flexibility rules.
 ---
 
 # Plan Format Reference
 
-This document is the single reference used by the plan-format review context (`@${CLAUDE_PLUGIN_ROOT}/context/review-plan-format.md`). It defines the structure plan documents should follow and the signals reviewers look for in a diff.
+This document is the shared reference used by the `write-reviewable-plan` skill
+and the plan-format review context
+(`@${CLAUDE_PLUGIN_ROOT}/context/review-plan-format.md`). It defines the
+structure plan documents should follow while drafting and the signals reviewers
+look for in a diff.
 
 A plan must follow a 3-phase structure — **Introduction → Body → Conclusion**. The three top-level phases are **mandatory** (a plan that opens with no Introduction at all, or ends with no Conclusion at all, is malformed). The subsections listed under each phase are the **recommended template**, not a required schema: a plan may omit any subsection that does not apply to the task at hand. Numbering is hierarchical: top-level numbers `1`, `2`, `3` label the (required) phases; `1.1`, `2.1`, etc. label the (recommended) subsections that belong to each phase. Each subsection is written *big-picture-first*: a `[High-level]` statement any reader can grasp, followed by `[Detail]` specifics.
 

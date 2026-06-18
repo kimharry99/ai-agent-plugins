@@ -1,7 +1,7 @@
 {
   "name": "custom-reviewer",
-  "version": "0.5.0",
-  "description": "Multi-perspective code and plan reviews with pluggable contexts and synthesized verdicts.",
+  "version": "0.6.0+codex.20260618040725",
+  "description": "Multi-perspective code reviews, reviewable plan drafting, and plan reviews with pluggable contexts and synthesized verdicts.",
   "author": {
     "name": "dmkim",
     "email": "kimharry9927@gmail.com"
@@ -9,14 +9,16 @@
   "keywords": [
     "review",
     "code-review",
+    "write-reviewable-plan",
     "plan-review",
+    "planning",
     "architecture"
   ],
   "skills": "skills",
   "interface": {
     "displayName": "Custom Reviewer",
     "shortDescription": "Run synthesized multi-perspective reviews.",
-    "longDescription": "Custom Reviewer provides reusable skills for diff-anchored code reviews, plan reviews, and review loops using specialist contexts plus a shared synthesis pass.",
+    "longDescription": "Custom Reviewer provides reusable skills for diff-anchored code reviews, reviewable plan drafting, plan reviews, and review loops using specialist contexts plus a shared synthesis pass.",
     "developerName": "dmkim",
     "category": "Productivity",
     "capabilities": [
@@ -26,6 +28,7 @@
     ],
     "defaultPrompt": [
       "Review my current code changes.",
+      "Draft a reviewable implementation plan.",
       "Review this plan before implementation.",
       "Check this diff for architecture risks.",
       "Run a review loop on my working tree."
