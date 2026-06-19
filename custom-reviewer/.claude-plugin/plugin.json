@@ -1,6 +1,6 @@
 {
   "name": "custom-reviewer",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Multi-perspective code reviews, reviewable plan drafting, and plan reviews for Claude Code.",
   "author": {
     "name": "dmkim",

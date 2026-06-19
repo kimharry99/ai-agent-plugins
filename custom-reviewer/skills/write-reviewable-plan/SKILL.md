@@ -1,6 +1,6 @@
 ---
 name: write-reviewable-plan
-description: Write or revise implementation, experiment, documentation, operation, or research plans so they are ready for custom-reviewer plan-review. Use when Codex is asked to create a plan, draft a spec, prepare a plan-reviewable document, or update a plan before review. This skill guides plan document structure and writing quality only; use plan-review when the user asks to review an existing plan.
+description: Write or revise implementation, experiment, documentation, operation, or research plans so they are ready for custom-reviewer plan-review. Use when an AI assistant is asked to create a plan, draft a spec, prepare a plan-reviewable document, or update a plan before review. This skill guides plan document structure and writing quality only; use plan-review when the user asks to review an existing plan.
 ---
 
 # write-reviewable-plan
@@ -14,10 +14,12 @@ validation concreteness. It does not run the reviewer pipeline, spawn reviewer
 subagents, or apply architecture review expectations that are not genuinely
 part of the plan.
 
-For the detailed plan format, follow
-`@${CLAUDE_PLUGIN_ROOT}/docs/plan_format.md`. That document is shared with the
-`plan-format` review context, so plans written with this skill and plans
-reviewed by `plan-review` use the same structural contract.
+For the detailed plan format, follow the plugin's shared reference
+`@${CLAUDE_PLUGIN_ROOT}/docs/plan_format.md`. `CLAUDE_PLUGIN_ROOT` is the
+current cross-file plugin-root reference convention, not the assistant's
+runtime identity. That plan format document is shared with the `plan-format`
+review context, so plans written with this skill and plans reviewed by
+`plan-review` use the same structural contract.
 
 ## Workflow
 
