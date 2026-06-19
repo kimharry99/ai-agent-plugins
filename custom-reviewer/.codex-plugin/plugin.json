@@ -1,6 +1,6 @@
 {
   "name": "custom-reviewer",
-  "version": "0.6.0+codex.20260618040725",
+  "version": "0.6.1+codex.20260619123157",
   "description": "Multi-perspective code reviews, reviewable plan drafting, and plan reviews with pluggable contexts and synthesized verdicts.",
   "author": {
     "name": "dmkim",
