@@ -8,7 +8,7 @@
     {
       "name": "python-harness",
       "source": "./python-harness",
-      "description": "Enforces Python conventions via hooks (OOP, style, test layout)."
+      "description": "Python convention guidance for OOP, style, test layout, and test patterns."
     },
     {
       "name": "custom-reviewer",

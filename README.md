@@ -6,7 +6,7 @@ A personal plugin marketplace for Claude Code and Codex.
 
 | Plugin | Description |
 |---|---|
-| [python-harness](./python-harness/) | Python convention guidance for OOP, style, test layout, and test patterns. Claude Code also gets hook enforcement. |
+| [python-harness](./python-harness/) | Python convention guidance for OOP, style, test layout, and test patterns. |
 | [custom-reviewer](./custom-reviewer/) | Multi-perspective code reviews, reviewable plan drafting, and plan reviews. |
 | [git-skills](./git-skills/) | GitHub PR lifecycle skills for opening PRs, merging, analyzing reviews, and applying feedback. |
 | [worktree-habit](./worktree-habit/) | Worktree-first guidance for creating feature worktrees before editing on `main`. |
@@ -52,7 +52,6 @@ plugin-name/
 │   └── plugin.json      # Claude Code plugin metadata
 ├── .codex-plugin/
 │   └── plugin.json      # Codex plugin metadata
-├── hooks/               # Claude Code hook definitions where supported
 ├── skills/              # Shared skill definitions
 ├── agents/              # Agent definitions where supported
 └── README.md            # Documentation
