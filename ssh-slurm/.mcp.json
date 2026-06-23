@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "ssh-slurm": {
+      "command": "python",
+      "args": [
+        "./server.py"
+      ]
+    }
+  }
+}
