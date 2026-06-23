@@ -12,13 +12,20 @@ Despite the name, this server does not SSH into machines, submit jobs, cancel jo
 Install the dependency in the environment that will launch the MCP server:
 
 ```bash
-python -m pip install mcp
+python3 -m pip install mcp
 ```
+
+## Codex Plugin Registration
+
+The Codex plugin manifest points at the bundled `.mcp.json` file. That file
+sets `cwd` for the bundled MCP server so the relative `./server.py` argument is
+resolved from the installed plugin directory, not from the Codex session's
+current working directory.
 
 ## Claude MCP Registration
 
 ```bash
-claude mcp add ssh-slurm -- python ~/mcp-servers/ssh-slurm/server.py
+claude mcp add ssh-slurm -- python3 ~/mcp-servers/ssh-slurm/server.py
 ```
 
 If you use this repo-local copy directly, replace the path with the local `server.py` path.

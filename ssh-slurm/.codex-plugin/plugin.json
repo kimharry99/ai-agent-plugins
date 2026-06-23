@@ -1,6 +1,6 @@
 {
   "name": "ssh-slurm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only SLURM guidance and safe SBATCH script generation over embedded Knowledge DB records.",
   "author": {
     "name": "Local developer"
