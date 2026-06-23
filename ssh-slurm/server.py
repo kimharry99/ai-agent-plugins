@@ -10,6 +10,18 @@ from mcp.server.fastmcp import FastMCP
 
 APP = FastMCP("ssh-slurm")
 
+DEFAULT_CONTAINER_WRAPPER = "/usr/local/bin/pipe-mcp-s10"
+DEFAULT_CONTAINER_WORKDIR = "/workspace"
+DEFAULT_HOST_LOG_PATH = "/srv/workspace/pipe/slurm-%j.out"
+DEFAULT_JOB_NAME = "pipe-train"
+DEFAULT_HOST_CHDIR = "/tmp"
+DEFAULT_GPU_MEMORY_USED_MB_THRESHOLD = 1000
+DEFAULT_PARTITION_EXAMPLE = "gpu_h200"
+DEFAULT_SAMPLE_TRAIN_CMD = (
+    "cd /workspace && python3 -c "
+    "'import torch; print(torch.cuda.is_available(), torch.cuda.device_count())'"
+)
+
 NOT_FOUND = "The requested information could not be found in the embedded knowledge base."
 REJECTED_TRAIN_CMD = (
     "Rejected train_cmd: do not set CUDA_VISIBLE_DEVICES, call pkill, or use "
@@ -17,12 +29,41 @@ REJECTED_TRAIN_CMD = (
     "job and let SLURM assign CUDA_VISIBLE_DEVICES."
 )
 
+
+def render_default_placeholders(text: str) -> str:
+    """Render embedded guidance placeholders from deployment defaults."""
+    replacements = {
+        "{{CONTAINER_WRAPPER}}": DEFAULT_CONTAINER_WRAPPER,
+        "{{CONTAINER_WORKDIR}}": DEFAULT_CONTAINER_WORKDIR,
+        "{{HOST_LOG_PATH}}": DEFAULT_HOST_LOG_PATH,
+        "{{JOB_NAME}}": DEFAULT_JOB_NAME,
+        "{{HOST_CHDIR}}": DEFAULT_HOST_CHDIR,
+        "{{GPU_MEMORY_THRESHOLD_MB}}": str(DEFAULT_GPU_MEMORY_USED_MB_THRESHOLD),
+        "{{PARTITION_EXAMPLE}}": DEFAULT_PARTITION_EXAMPLE,
+        "{{SAMPLE_TRAIN_CMD}}": DEFAULT_SAMPLE_TRAIN_CMD,
+    }
+    for placeholder, value in replacements.items():
+        text = text.replace(placeholder, value)
+    return text
+
+
+def get_gpu_server_context_text() -> str:
+    """Return deployment-scoped context from embedded guidance."""
+    try:
+        return MarkdownExtractor.safe_section(
+            SHARED_GPU_PATTERN,
+            "Environment Notes",
+        )
+    except Exception:
+        return NOT_FOUND
+
+
 QUEUE_GUIDE = r'''---
-summary: Canonical s10 SLURM command table, SBATCH option reference, and
-  troubleshooting guide.
+summary: GPU server SLURM command table, SBATCH option reference, and
+  troubleshooting guide for a shared GPU server deployment.
 ---
 
-# s10 SLURM Queue Guide
+# GPU Server Queue Guide
 
 ## TL;DR
 
@@ -58,10 +99,10 @@ script and change only the training command.
 #!/bin/bash
 #SBATCH --gpus=1
 #SBATCH --time=24:00:00
-#SBATCH --chdir=/tmp
-#SBATCH --output=/srv/workspace/pipe/slurm-%j.out
+#SBATCH --chdir={{HOST_CHDIR}}
+#SBATCH --output={{HOST_LOG_PATH}}
 
-sudo -n /usr/local/bin/pipe-mcp-s10 bash -c "cd /workspace && python train.py"
+sudo -n {{CONTAINER_WRAPPER}} bash -c "cd {{CONTAINER_WORKDIR}} && python train.py"
 ```
 
 ## SBATCH 옵션 자주 쓰는 것
@@ -74,7 +115,7 @@ sudo -n /usr/local/bin/pipe-mcp-s10 bash -c "cd /workspace && python train.py"
 | `--mem=NG` | `--mem=64G` | 메모리 N GB 요청 |
 | `--cpus-per-task=N` | `--cpus-per-task=8` | 잡당 CPU N core |
 | `--job-name=NAME` | `--job-name=baseline` | 잡 이름 |
-| `--partition=PART` | `--partition=gpu_h200` | 특정 파티션 |
+| `--partition=PART` | `--partition={{PARTITION_EXAMPLE}}` | 특정 파티션 |
 | `--output=FILE` | `--output=run-%j.log` | stdout 경로 |
 
 ## 인터랙티브 잡
@@ -92,11 +133,11 @@ srun --gpus=1 -t 1:00:00 --pty bash
 ### 잡이 즉시 fail (ExitCode 1:0)
 - `--chdir` 빠뜨렸을 가능성. SLURM 잡은 호스트에서 시작되므로 컨테이너
   전용 경로를 작업 디렉터리로 쓰면 실패할 수 있다.
-  -> `#SBATCH --chdir=/tmp` 사용.
+  -> `#SBATCH --chdir={{HOST_CHDIR}}` 사용.
 
 ### 잡 출력이 안 보임
 - `--output=` 으로 stdout 경로를 명시한다.
-  -> `#SBATCH --output=/srv/workspace/pipe/slurm-%j.out` 권장.
+  -> `#SBATCH --output={{HOST_LOG_PATH}}` 권장.
 
 ### 학습 도중 패키지 설치 필요
 컨테이너 안에서 옵션 3가지:
@@ -110,13 +151,14 @@ SBATCH 잡에서는 필요한 환경 활성화나 `PYTHONPATH` 설정을 trainin
 ### 잡이 GPU 못 찾음
 - 컨테이너에 GPU가 노출되어 있는지 확인한다.
 '''
+QUEUE_GUIDE = render_default_placeholders(QUEUE_GUIDE)
 
 SAMPLE_JOB_SCRIPT = r'''---
-summary: Canonical s10 SBATCH template with a GPU memory guard and
+summary: GPU server sample SBATCH template with a GPU memory guard and
   container-wrapper invocation.
 ---
 
-# s10 SLURM sample-job.sh
+# GPU Server sample-job.sh
 
 ## sample-job.sh
 
@@ -129,13 +171,13 @@ summary: Canonical s10 SBATCH template with a GPU memory guard and
 #
 # 본인 학습 명령에 맞춰 TRAIN_CMD 만 바꾸세요.
 
-#SBATCH --job-name=pipe-train
+#SBATCH --job-name={{JOB_NAME}}
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=24:00:00
-#SBATCH --chdir=/tmp
-#SBATCH --output=/srv/workspace/pipe/slurm-%j.out
+#SBATCH --chdir={{HOST_CHDIR}}
+#SBATCH --output={{HOST_LOG_PATH}}
 
 if [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then
     echo "[ERROR] SLURM did not assign a GPU. Check #SBATCH --gpus." >&2
@@ -149,18 +191,19 @@ for gpu_idx in $(echo "$CUDA_VISIBLE_DEVICES" | tr ',' ' '); do
         echo "[ERROR] Failed to query GPU $gpu_idx." >&2
         exit 1
     fi
-    if [ "$USED_MB" -gt 1000 ]; then
+    if [ "$USED_MB" -gt {{GPU_MEMORY_THRESHOLD_MB}} ]; then
         echo "[ERROR] GPU $gpu_idx is already using ${USED_MB} MB. Exiting." >&2
         exit 1
     fi
 done
 echo "[INFO] Hardware check passed. Starting training."
 
-TRAIN_CMD="cd /workspace && python3 -c 'import torch; print(torch.cuda.is_available(), torch.cuda.device_count())'"
+TRAIN_CMD="{{SAMPLE_TRAIN_CMD}}"
 
-sudo -n /usr/local/bin/pipe-mcp-s10 bash -c "export CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES && $TRAIN_CMD"
+sudo -n {{CONTAINER_WRAPPER}} bash -c "export CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES && $TRAIN_CMD"
 ```
 '''
+SAMPLE_JOB_SCRIPT = render_default_placeholders(SAMPLE_JOB_SCRIPT)
 
 SHARED_GPU_PATTERN = r'''---
 summary: Shared GPU servers should run CUDA work through SLURM with job-local
@@ -193,7 +236,7 @@ squeue -j <ids> -o '%i %t %M %R %j'
 sacct -j <id> --format=JobID,JobName%32,State,ExitCode,Elapsed,Start,End -P
 scontrol show job <id>
 sinfo -p <partition>
-tail -f /srv/workspace/pipe/slurm-<jobid>.out
+tail -f {{HOST_LOG_PATH}}
 command -v sbatch && command -v squeue && command -v srun
 ```
 
@@ -218,8 +261,8 @@ set -euo pipefail
 ### Host vs Container Working Directory
 
 SLURM jobs start on the host filesystem, not inside the container. Use
-`#SBATCH --chdir=/tmp`, write logs to a host-visible path, and re-enter the
-container through the wrapper.
+`#SBATCH --chdir={{HOST_CHDIR}}`, write logs to a host-visible path, and
+re-enter the container through the wrapper.
 
 ### Munge / SLURM Outage
 
@@ -236,11 +279,11 @@ If the scheduler is unavailable, halt and report. Do not fall back to a direct
 
 ## Reuse Checklist
 
-- Read the server's queue guide before writing any script.
-- Start from the server's sample job script.
+- Read the GPU server queue guide before writing any script.
+- Start from the GPU server sample job script.
 - Request GPU count; do not encode a physical GPU number.
 - Begin the script with `#!/bin/bash` and `set -euo pipefail`.
-- Use `#SBATCH --chdir=/tmp` and a host-visible `--output` path.
+- Use `#SBATCH --chdir={{HOST_CHDIR}}` and a host-visible `--output` path.
 - Pass `CUDA_VISIBLE_DEVICES` through the container wrapper.
 - Add an early `nvidia-smi` memory guard.
 - Chain long training jobs after a short smoke job when appropriate.
@@ -249,8 +292,11 @@ If the scheduler is unavailable, halt and report. Do not fall back to a direct
 ## Environment Notes
 
 The concrete container wrapper, partition, workspace path, and GPU request
-syntax can differ by server. Check the server guide before generating a job.
+syntax can differ by server. This plugin's generated scripts use deployment
+defaults for its target shared GPU server; adapt them before reusing the
+guidance for a different SLURM environment.
 '''
+SHARED_GPU_PATTERN = render_default_placeholders(SHARED_GPU_PATTERN)
 
 
 class MarkdownExtractor:
@@ -419,8 +465,8 @@ class SbatchGenerator:
             ("cpus-per-task", cpus),
             ("mem", mem),
             ("time", time),
-            ("chdir", "/tmp"),
-            ("output", "/srv/workspace/pipe/slurm-%j.out"),
+            ("chdir", DEFAULT_HOST_CHDIR),
+            ("output", DEFAULT_HOST_LOG_PATH),
         )
         for option, value in replacements:
             script = cls.replace_sbatch_value(script, option, value)
@@ -507,38 +553,38 @@ class SlurmGuidanceTools:
     @staticmethod
     @APP.tool()
     def get_queue_guide() -> str:
-        """Return the embedded canonical s10 SLURM queue guide."""
+        """Return the embedded shared GPU SLURM server queue guide."""
         return QUEUE_GUIDE
 
     @staticmethod
     @APP.tool()
     def get_sample_job_script() -> str:
-        """Return the embedded canonical s10 sample SBATCH job record."""
+        """Return the embedded GPU server sample SBATCH job record."""
         return SAMPLE_JOB_SCRIPT
 
     @staticmethod
     @APP.tool()
+    def get_gpu_server_context() -> str:
+        """Return embedded GPU server context without enabling live actions."""
+        return get_gpu_server_context_text()
+
+    @staticmethod
+    @APP.tool()
     def get_server_info() -> str:
-        """Return embedded server facts without enabling SSH or SLURM actions."""
-        try:
-            return MarkdownExtractor.safe_section(
-                SHARED_GPU_PATTERN,
-                "Environment Notes",
-            )
-        except Exception:
-            return NOT_FOUND
+        """Return GPU server context as a backward-compatible alias."""
+        return get_gpu_server_context_text()
 
     @staticmethod
     @APP.tool()
     def generate_sbatch_script(
         train_cmd: str,
-        job_name: str = "pipe-train",
+        job_name: str = DEFAULT_JOB_NAME,
         gpus: int = 1,
         time: str = "24:00:00",
         mem: str = "32G",
         cpus: int = 8,
     ) -> str:
-        """Generate a safe s10 SBATCH script by changing only template slots."""
+        """Generate a safe GPU server SBATCH script by changing template slots."""
         if SbatchGenerator.contains_rejected_train_cmd(train_cmd):
             return REJECTED_TRAIN_CMD
         if gpus < 1 or cpus < 1:
