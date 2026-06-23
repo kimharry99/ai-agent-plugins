@@ -38,7 +38,7 @@ Tools:
 
 ## SBATCH Generation Scope
 
-`generate_sbatch_script` extracts the embedded sample bash script, updates only the safe template slots, applies this deployment's GPU-server defaults for `#SBATCH --chdir=/tmp` and `#SBATCH --output=/srv/workspace/pipe/slurm-%j.out`, preserves the GPU memory guard and wrapper invocation, and replaces only the `TRAIN_CMD=` assignment using shell-safe quoting.
+`generate_sbatch_script` extracts the embedded sample bash script, validates and updates the single-line SBATCH template slots, applies this deployment's GPU-server defaults for `#SBATCH --chdir=/tmp` and `#SBATCH --output=/srv/workspace/pipe/slurm-%j.out`, preserves the GPU memory guard and wrapper invocation, and replaces the `TRAIN_CMD=` assignment using shell-safe quoting.
 
 Those defaults are deployment defaults for this shared GPU server role, not universal SLURM settings. Review the embedded GPU server context before adapting generated scripts to a different cluster, partition layout, container wrapper, or log path convention.
 

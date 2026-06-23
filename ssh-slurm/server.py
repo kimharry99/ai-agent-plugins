@@ -28,6 +28,10 @@ REJECTED_TRAIN_CMD = (
     "dist_train.sh from generated SLURM scripts. Start from the embedded sample "
     "job and let SLURM assign CUDA_VISIBLE_DEVICES."
 )
+REJECTED_SBATCH_VALUE = (
+    "Rejected request: SBATCH directive values must be non-empty single-line "
+    "values without control characters."
+)
 
 
 def render_default_placeholders(text: str) -> str:
@@ -169,7 +173,9 @@ summary: GPU server sample SBATCH template with a GPU memory guard and
 # Usage:
 #   sbatch sample-job.sh
 #
-# Change only TRAIN_CMD for your training command.
+# Change TRAIN_CMD for your training command; adjust SBATCH resources
+# deliberately when needed.
+set -euo pipefail
 
 #SBATCH --job-name={{JOB_NAME}}
 #SBATCH --gpus=1
@@ -410,6 +416,12 @@ class SbatchGenerator:
     """Generate safe SBATCH scripts from the embedded sample."""
 
     @staticmethod
+    def is_safe_sbatch_value(value: str | int) -> bool:
+        """Return whether value can be interpolated into one SBATCH line."""
+        value_text = str(value)
+        return bool(value_text) and re.search(r"[\r\n\x00]", value_text) is None
+
+    @staticmethod
     def replace_sbatch_value(script: str, option: str, value: str | int) -> str:
         """Replace or insert a single SBATCH directive."""
         pattern = re.compile(
@@ -469,6 +481,8 @@ class SbatchGenerator:
             ("output", DEFAULT_HOST_LOG_PATH),
         )
         for option, value in replacements:
+            if not cls.is_safe_sbatch_value(value):
+                raise ValueError("unsafe SBATCH directive value")
             script = cls.replace_sbatch_value(script, option, value)
         return cls.replace_train_cmd(script, train_cmd)
 
@@ -592,6 +606,11 @@ class SlurmGuidanceTools:
             return REJECTED_TRAIN_CMD
         if gpus < 1 or cpus < 1:
             return "Rejected request: gpus and cpus must be positive integers."
+        if not all(
+            SbatchGenerator.is_safe_sbatch_value(value)
+            for value in (job_name, gpus, time, mem, cpus)
+        ):
+            return REJECTED_SBATCH_VALUE
 
         try:
             return SbatchGenerator.generate(
