@@ -77,23 +77,23 @@ sacct -X
 `train.py` itself does not need to be modified. Start from the sample job
 script and change only the training command.
 
-## 자주 쓰는 명령
+## Common Commands
 
-| 명령 | 설명 |
+| Command | Description |
 |---|---|
-| `sbatch s.sh` | s.sh 잡을 큐에 제출 |
-| `squeue -u "$USER"` | 내 pending/running 잡 |
-| `squeue` | 전체 큐 |
-| `scancel <id>` | 내 잡 취소 |
-| `scancel -u "$USER"` | 내 모든 잡 취소 |
-| `sacct -X` | 본인 잡 이력 |
-| `sacct -X --starttime=now-7days` | 최근 7일 이력 |
-| `sinfo` | 노드/파티션 상태 |
-| `scontrol show job <id>` | 잡 상세 정보 |
+| `sbatch s.sh` | Submit the s.sh job to the queue |
+| `squeue -u "$USER"` | My pending/running jobs |
+| `squeue` | Entire queue |
+| `scancel <id>` | Cancel one of my jobs |
+| `scancel -u "$USER"` | Cancel all of my jobs |
+| `sacct -X` | My job history |
+| `sacct -X --starttime=now-7days` | History from the last 7 days |
+| `sinfo` | Node/partition status |
+| `scontrol show job <id>` | Detailed job information |
 
-## 잡 스크립트 패턴
+## Job Script Pattern
 
-핵심 골격:
+Core skeleton:
 
 ```bash
 #!/bin/bash
@@ -105,51 +105,51 @@ script and change only the training command.
 sudo -n {{CONTAINER_WRAPPER}} bash -c "cd {{CONTAINER_WORKDIR}} && python train.py"
 ```
 
-## SBATCH 옵션 자주 쓰는 것
+## Common SBATCH Options
 
-| 옵션 | 예시 | 의미 |
+| Option | Example | Meaning |
 |---|---|---|
-| `--gpus=N` | `--gpus=2` | GPU N개 요청 |
-| `--gpus-per-node=N` | `--gpus-per-node=4` | 노드당 N개 |
-| `--time=HH:MM:SS` | `--time=12:00:00` | 최대 wall time |
-| `--mem=NG` | `--mem=64G` | 메모리 N GB 요청 |
-| `--cpus-per-task=N` | `--cpus-per-task=8` | 잡당 CPU N core |
-| `--job-name=NAME` | `--job-name=baseline` | 잡 이름 |
-| `--partition=PART` | `--partition={{PARTITION_EXAMPLE}}` | 특정 파티션 |
-| `--output=FILE` | `--output=run-%j.log` | stdout 경로 |
+| `--gpus=N` | `--gpus=2` | Request N GPUs |
+| `--gpus-per-node=N` | `--gpus-per-node=4` | N GPUs per node |
+| `--time=HH:MM:SS` | `--time=12:00:00` | Maximum wall time |
+| `--mem=NG` | `--mem=64G` | Request N GB of memory |
+| `--cpus-per-task=N` | `--cpus-per-task=8` | N CPU cores per job |
+| `--job-name=NAME` | `--job-name=baseline` | Job name |
+| `--partition=PART` | `--partition={{PARTITION_EXAMPLE}}` | Specific partition |
+| `--output=FILE` | `--output=run-%j.log` | stdout path |
 
-## 인터랙티브 잡
+## Interactive Jobs
 
 ```bash
 srun --gpus=1 -t 1:00:00 --pty bash
 ```
 
-## 트러블슈팅
+## Troubleshooting
 
-### 잡이 `Invalid account` 로 거부
-- 본인 OS 계정이 SLURM 에 등록 안 됐을 가능성. 운영자에게 계정 등록을
-  요청한다.
+### Job Rejected With `Invalid account`
+- Your OS account may not be registered with SLURM. Ask the administrator to
+  register your account.
 
-### 잡이 즉시 fail (ExitCode 1:0)
-- `--chdir` 빠뜨렸을 가능성. SLURM 잡은 호스트에서 시작되므로 컨테이너
-  전용 경로를 작업 디렉터리로 쓰면 실패할 수 있다.
-  -> `#SBATCH --chdir={{HOST_CHDIR}}` 사용.
+### Job Fails Immediately (ExitCode 1:0)
+- `--chdir` may be missing. SLURM jobs start on the host, so using a
+  container-only path as the working directory can fail.
+  -> Use `#SBATCH --chdir={{HOST_CHDIR}}`.
 
-### 잡 출력이 안 보임
-- `--output=` 으로 stdout 경로를 명시한다.
-  -> `#SBATCH --output={{HOST_LOG_PATH}}` 권장.
+### Job Output Is Not Visible
+- Specify the stdout path with `--output=`.
+  -> Recommended: `#SBATCH --output={{HOST_LOG_PATH}}`.
 
-### 학습 도중 패키지 설치 필요
-컨테이너 안에서 옵션 3가지:
+### Package Installation Needed During Training
+There are three options inside the container:
 1. `pip install --user xxx`
 2. `pip install xxx`
 3. `conda create -n myenv python=3.10 && conda activate myenv`
 
-SBATCH 잡에서는 필요한 환경 활성화나 `PYTHONPATH` 설정을 training command에
-포함한다.
+For SBATCH jobs, include any required environment activation or `PYTHONPATH`
+settings in the training command.
 
-### 잡이 GPU 못 찾음
-- 컨테이너에 GPU가 노출되어 있는지 확인한다.
+### Job Cannot Find the GPU
+- Check that the GPU is exposed inside the container.
 '''
 QUEUE_GUIDE = render_default_placeholders(QUEUE_GUIDE)
 
@@ -164,12 +164,12 @@ summary: GPU server sample SBATCH template with a GPU memory guard and
 
 ```bash
 #!/bin/bash
-# SLURM 잡 샘플
+# Sample SLURM job
 #
-# 사용법:
+# Usage:
 #   sbatch sample-job.sh
 #
-# 본인 학습 명령에 맞춰 TRAIN_CMD 만 바꾸세요.
+# Change only TRAIN_CMD for your training command.
 
 #SBATCH --job-name={{JOB_NAME}}
 #SBATCH --gpus=1
@@ -485,7 +485,7 @@ class Diagnostics:
             sections.append(
                 MarkdownExtractor.safe_section(
                     QUEUE_GUIDE,
-                    "잡이 `Invalid account` 로 거부",
+                    "Job Rejected With `Invalid account`",
                 ),
             )
         if (
@@ -497,12 +497,15 @@ class Diagnostics:
             sections.append(
                 MarkdownExtractor.safe_section(
                     QUEUE_GUIDE,
-                    "잡이 즉시 fail (ExitCode 1:0)",
+                    "Job Fails Immediately (ExitCode 1:0)",
                 ),
             )
         if "output" in text or "log" in text or "stdout" in text:
             sections.append(
-                MarkdownExtractor.safe_section(QUEUE_GUIDE, "잡 출력이 안 보임"),
+                MarkdownExtractor.safe_section(
+                    QUEUE_GUIDE,
+                    "Job Output Is Not Visible",
+                ),
             )
         if "gpu" in text or "cuda" in text or "visible" in text or "memory" in text:
             sections.append(
@@ -612,7 +615,7 @@ class SlurmGuidanceTools:
                 return targeted
             return "\n\n".join(
                 [
-                    MarkdownExtractor.safe_section(QUEUE_GUIDE, "트러블슈팅"),
+                    MarkdownExtractor.safe_section(QUEUE_GUIDE, "Troubleshooting"),
                     MarkdownExtractor.safe_section(
                         SHARED_GPU_PATTERN,
                         "Recurring Gotchas",
@@ -641,7 +644,7 @@ class SlurmGuidanceTools:
         try:
             return "\n\n".join(
                 [
-                    MarkdownExtractor.safe_table(QUEUE_GUIDE, "자주 쓰는 명령"),
+                    MarkdownExtractor.safe_table(QUEUE_GUIDE, "Common Commands"),
                     MarkdownExtractor.safe_section(
                         SHARED_GPU_PATTERN,
                         "Submission & Monitoring Commands",
