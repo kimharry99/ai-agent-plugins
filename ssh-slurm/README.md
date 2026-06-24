@@ -45,7 +45,7 @@ Tools:
 
 ## SBATCH Generation Scope
 
-`generate_sbatch_script` builds a portable bash script from explicit inputs. With no arguments, it returns a generic script with:
+`generate_sbatch_script` builds a portable bash script from explicit inputs. With no arguments, it returns a generic script whose key lines include:
 
 - `#!/bin/bash`
 - `#SBATCH --job-name=slurm-job`
@@ -56,6 +56,8 @@ Tools:
 - `#SBATCH --output=slurm-%j.out`
 - `set -euo pipefail`
 - `TRAIN_CMD='python train.py'`
+
+Because the default request includes `gpus=1` and `gpu_guard="skip_if_missing"`, the generated script also inserts a `CUDA_VISIBLE_DEVICES` check and an `nvidia-smi` memory guard before `TRAIN_CMD`.
 
 It rejects `train_cmd` values containing `CUDA_VISIBLE_DEVICES=`, `pkill`, or `dist_train.sh`. `partition`, `chdir`, `workdir`, `wrapper_cmd`, `extra_sbatch_options`, and `env` are inserted only when the caller provides them.
 
