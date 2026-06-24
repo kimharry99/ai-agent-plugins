@@ -10,6 +10,7 @@ A personal plugin marketplace for Claude Code and Codex.
 | [custom-reviewer](./custom-reviewer/) | Multi-perspective code reviews, reviewable plan drafting, and plan reviews. |
 | [git-skills](./git-skills/) | GitHub PR lifecycle skills for opening PRs, merging, analyzing reviews, and applying feedback. |
 | [worktree-habit](./worktree-habit/) | Worktree-first guidance for creating feature worktrees before editing on `main`. |
+| [ssh-slurm](./ssh-slurm/) | Read-only SLURM guidance and generic SBATCH script generation. |
 
 ## Claude Code Installation
 
@@ -28,6 +29,8 @@ Install only the plugins you need:
 /plugin install worktree-habit@ai-agent-plugins
 ```
 
+`ssh-slurm` is currently packaged as a Codex MCP plugin rather than a Claude Code plugin.
+
 ## Codex Installation
 
 Add this repository as a local Codex marketplace, then install individual plugins:
@@ -38,6 +41,7 @@ codex plugin add python-harness@ai-agent-plugins
 codex plugin add custom-reviewer@ai-agent-plugins
 codex plugin add git-skills@ai-agent-plugins
 codex plugin add worktree-habit@ai-agent-plugins
+codex plugin add ssh-slurm@ai-agent-plugins
 ```
 
 Codex reads marketplace metadata from `.agents/plugins/marketplace.json` and plugin metadata from each plugin's `.codex-plugin/plugin.json`.

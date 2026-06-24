@@ -1,21 +1,21 @@
 {
   "name": "ssh-slurm",
-  "version": "0.1.1",
-  "description": "Read-only SLURM guidance and safe SBATCH script generation over embedded Knowledge DB records.",
+  "version": "0.2.0",
+  "description": "Read-only SLURM guidance and generic SBATCH script generation.",
   "author": {
     "name": "Local developer"
   },
   "interface": {
     "displayName": "SSH SLURM",
-    "shortDescription": "Read-only SLURM guidance and SBATCH generation.",
-    "longDescription": "Embedded s10 SLURM operational guidance with deterministic, read-only FastMCP tools for queue help, diagnostics, and safe SBATCH script generation.",
+    "shortDescription": "Generate portable SLURM SBATCH scripts.",
+    "longDescription": "Read-only FastMCP tools for SLURM queue guidance, diagnostics, reusable checklists, and portable SBATCH script generation with optional site-specific parameters.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
       "MCP"
     ],
     "defaultPrompt": [
-      "Generate a safe SLURM batch script.",
+      "Generate a generic SLURM batch script.",
       "Diagnose a SLURM queue issue.",
       "Show the shared GPU checklist."
     ]
