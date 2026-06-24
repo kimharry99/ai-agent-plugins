@@ -10,15 +10,17 @@ from mcp.server.fastmcp import FastMCP
 
 APP = FastMCP("ssh-slurm")
 
-DEFAULT_CONTAINER_WRAPPER = "/usr/local/bin/pipe-mcp-s10"
-DEFAULT_CONTAINER_WORKDIR = "/workspace"
-DEFAULT_HOST_LOG_PATH = "/srv/workspace/pipe/slurm-%j.out"
-DEFAULT_JOB_NAME = "pipe-train"
-DEFAULT_HOST_CHDIR = "/tmp"
+GENERIC_DEFAULT_JOB_NAME = "slurm-job"
+GENERIC_DEFAULT_OUTPUT = "slurm-%j.out"
+GENERIC_DEFAULT_TRAIN_CMD = "python train.py"
 DEFAULT_GPU_MEMORY_USED_MB_THRESHOLD = 1000
-DEFAULT_PARTITION_EXAMPLE = "gpu_h200"
-DEFAULT_SAMPLE_TRAIN_CMD = (
-    "cd /workspace && python3 -c "
+S10_SAMPLE_CONTAINER_WRAPPER = "/usr/local/bin/pipe-mcp-s10"
+S10_SAMPLE_CONTAINER_WORKDIR = "/workspace"
+S10_SAMPLE_HOST_LOG_PATH = "/srv/workspace/pipe/slurm-%j.out"
+S10_SAMPLE_HOST_CHDIR = "/tmp"
+S10_SAMPLE_PARTITION = "gpu_h200"
+S10_SAMPLE_TRAIN_CMD = (
+    "python3 -c "
     "'import torch; print(torch.cuda.is_available(), torch.cuda.device_count())'"
 )
 
@@ -32,19 +34,26 @@ REJECTED_SBATCH_VALUE = (
     "Rejected request: SBATCH directive values must be non-empty single-line "
     "values without control characters."
 )
+REJECTED_ENV_VALUE = (
+    "Rejected env: names must be shell identifiers and values must be "
+    "single-line strings without control characters."
+)
+REJECTED_GPU_GUARD = (
+    "Rejected gpu_guard: use skip_if_missing, error_if_missing, or disabled."
+)
 
 
 def render_default_placeholders(text: str) -> str:
-    """Render embedded guidance placeholders from deployment defaults."""
+    """Render embedded guidance placeholders for documented examples."""
     replacements = {
-        "{{CONTAINER_WRAPPER}}": DEFAULT_CONTAINER_WRAPPER,
-        "{{CONTAINER_WORKDIR}}": DEFAULT_CONTAINER_WORKDIR,
-        "{{HOST_LOG_PATH}}": DEFAULT_HOST_LOG_PATH,
-        "{{JOB_NAME}}": DEFAULT_JOB_NAME,
-        "{{HOST_CHDIR}}": DEFAULT_HOST_CHDIR,
+        "{{CONTAINER_WRAPPER}}": S10_SAMPLE_CONTAINER_WRAPPER,
+        "{{CONTAINER_WORKDIR}}": S10_SAMPLE_CONTAINER_WORKDIR,
+        "{{HOST_LOG_PATH}}": S10_SAMPLE_HOST_LOG_PATH,
+        "{{JOB_NAME}}": GENERIC_DEFAULT_JOB_NAME,
+        "{{HOST_CHDIR}}": S10_SAMPLE_HOST_CHDIR,
         "{{GPU_MEMORY_THRESHOLD_MB}}": str(DEFAULT_GPU_MEMORY_USED_MB_THRESHOLD),
-        "{{PARTITION_EXAMPLE}}": DEFAULT_PARTITION_EXAMPLE,
-        "{{SAMPLE_TRAIN_CMD}}": DEFAULT_SAMPLE_TRAIN_CMD,
+        "{{PARTITION_EXAMPLE}}": S10_SAMPLE_PARTITION,
+        "{{SAMPLE_TRAIN_CMD}}": S10_SAMPLE_TRAIN_CMD,
     }
     for placeholder, value in replacements.items():
         text = text.replace(placeholder, value)
@@ -101,12 +110,16 @@ Core skeleton:
 
 ```bash
 #!/bin/bash
+#SBATCH --job-name=slurm-job
 #SBATCH --gpus=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=32G
 #SBATCH --time=24:00:00
-#SBATCH --chdir={{HOST_CHDIR}}
-#SBATCH --output={{HOST_LOG_PATH}}
+#SBATCH --output=slurm-%j.out
+set -euo pipefail
 
-sudo -n {{CONTAINER_WRAPPER}} bash -c "cd {{CONTAINER_WORKDIR}} && python train.py"
+TRAIN_CMD='python train.py'
+bash -lc "$TRAIN_CMD"
 ```
 
 ## Common SBATCH Options
@@ -137,11 +150,11 @@ srun --gpus=1 -t 1:00:00 --pty bash
 ### Job Fails Immediately (ExitCode 1:0)
 - `--chdir` may be missing. SLURM jobs start on the host, so using a
   container-only path as the working directory can fail.
-  -> Use `#SBATCH --chdir={{HOST_CHDIR}}`.
+  -> Use `#SBATCH --chdir=/host/visible/path`.
 
 ### Job Output Is Not Visible
 - Specify the stdout path with `--output=`.
-  -> Recommended: `#SBATCH --output={{HOST_LOG_PATH}}`.
+  -> Recommended: `#SBATCH --output=slurm-%j.out`.
 
 ### Package Installation Needed During Training
 There are three options inside the container:
@@ -159,7 +172,7 @@ QUEUE_GUIDE = render_default_placeholders(QUEUE_GUIDE)
 
 SAMPLE_JOB_SCRIPT = r'''---
 summary: GPU server sample SBATCH template with a GPU memory guard and
-  container-wrapper invocation.
+  optional GPU guard.
 ---
 
 # GPU Server sample-job.sh
@@ -175,15 +188,13 @@ summary: GPU server sample SBATCH template with a GPU memory guard and
 #
 # Change TRAIN_CMD for your training command; adjust SBATCH resources
 # deliberately when needed.
-set -euo pipefail
-
 #SBATCH --job-name={{JOB_NAME}}
 #SBATCH --gpus=1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=32G
 #SBATCH --time=24:00:00
-#SBATCH --chdir={{HOST_CHDIR}}
-#SBATCH --output={{HOST_LOG_PATH}}
+#SBATCH --output=slurm-%j.out
+set -euo pipefail
 
 if [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then
     echo "[ERROR] SLURM did not assign a GPU. Check #SBATCH --gpus." >&2
@@ -191,6 +202,9 @@ if [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then
 fi
 echo "[INFO] SLURM assigned GPU: $CUDA_VISIBLE_DEVICES"
 
+if ! command -v nvidia-smi >/dev/null 2>&1; then
+    echo "[WARN] nvidia-smi is unavailable; skipping GPU memory guard." >&2
+else
 for gpu_idx in $(echo "$CUDA_VISIBLE_DEVICES" | tr ',' ' '); do
     USED_MB=$(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits --id=$gpu_idx 2>/dev/null | tr -d ' ')
     if [ -z "$USED_MB" ]; then
@@ -202,11 +216,27 @@ for gpu_idx in $(echo "$CUDA_VISIBLE_DEVICES" | tr ',' ' '); do
         exit 1
     fi
 done
+fi
 echo "[INFO] Hardware check passed. Starting training."
 
 TRAIN_CMD="{{SAMPLE_TRAIN_CMD}}"
 
-sudo -n {{CONTAINER_WRAPPER}} bash -c "export CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES && $TRAIN_CMD"
+bash -lc "$TRAIN_CMD"
+```
+
+## Site-specific profile example
+
+The following example is documentation only. These values are not generic
+defaults and are not inserted unless a caller explicitly passes equivalent
+arguments to `generate_sbatch_script`.
+
+```bash
+#SBATCH --partition={{PARTITION_EXAMPLE}}
+#SBATCH --chdir={{HOST_CHDIR}}
+#SBATCH --output={{HOST_LOG_PATH}}
+
+TRAIN_CMD='{{SAMPLE_TRAIN_CMD}}'
+sudo -n {{CONTAINER_WRAPPER}} bash -lc "cd {{CONTAINER_WORKDIR}} && $TRAIN_CMD"
 ```
 '''
 SAMPLE_JOB_SCRIPT = render_default_placeholders(SAMPLE_JOB_SCRIPT)
@@ -225,9 +255,9 @@ read the server queue guide
   -> copy the sample job script
   -> request GPU count through SLURM
   -> let SLURM set CUDA_VISIBLE_DEVICES
-  -> pass CUDA_VISIBLE_DEVICES through the container wrapper
-  -> inspect assigned GPU memory before training
-  -> run training only if the assigned GPU is free enough
+  -> optionally pass execution through a site wrapper
+  -> optionally inspect assigned GPU memory before training
+  -> run the training command
 ```
 
 SLURM owns reservation, the job script owns the physical-state sanity check, and
@@ -241,8 +271,7 @@ squeue -u "$USER"
 squeue -j <ids> -o '%i %t %M %R %j'
 sacct -j <id> --format=JobID,JobName%32,State,ExitCode,Elapsed,Start,End -P
 scontrol show job <id>
-sinfo -p <partition>
-tail -f {{HOST_LOG_PATH}}
+tail -f slurm-<jobid>.out
 command -v sbatch && command -v squeue && command -v srun
 ```
 
@@ -251,8 +280,10 @@ command -v sbatch && command -v squeue && command -v srun
 ### Scheduler/Physical GPU Mismatch
 
 SLURM can assign a GPU that is already heavily used by a process it does not
-account for. The job-local guard should inspect `nvidia-smi` memory for the
-assigned physical GPU and abort if usage exceeds the accepted threshold.
+account for. A job-local guard can inspect `nvidia-smi` memory for the assigned
+physical GPU and abort if usage exceeds the accepted threshold. On clusters
+without `nvidia-smi`, choose whether the generated script should fail clearly,
+warn and continue, or omit the guard.
 
 ### `sbatch --wrap` Runs Under `/bin/sh`
 
@@ -267,8 +298,8 @@ set -euo pipefail
 ### Host vs Container Working Directory
 
 SLURM jobs start on the host filesystem, not inside the container. Use
-`#SBATCH --chdir={{HOST_CHDIR}}`, write logs to a host-visible path, and
-re-enter the container through the wrapper.
+`#SBATCH --chdir=/host/visible/path` when needed, write logs to a host-visible
+path, and use any required wrapper explicitly.
 
 ### Munge / SLURM Outage
 
@@ -289,18 +320,18 @@ If the scheduler is unavailable, halt and report. Do not fall back to a direct
 - Start from the GPU server sample job script.
 - Request GPU count; do not encode a physical GPU number.
 - Begin the script with `#!/bin/bash` and `set -euo pipefail`.
-- Use `#SBATCH --chdir={{HOST_CHDIR}}` and a host-visible `--output` path.
-- Pass `CUDA_VISIBLE_DEVICES` through the container wrapper.
-- Add an early `nvidia-smi` memory guard.
+- Use a host-visible `--output` path, such as `slurm-%j.out`.
+- Add `#SBATCH --chdir=...` only when the target cluster needs it.
+- Pass a wrapper command only when the target site requires it.
+- Add an early `nvidia-smi` memory guard when appropriate.
 - Chain long training jobs after a short smoke job when appropriate.
 - Record the job id, log path, work directory, and exact config overrides.
 
 ## Environment Notes
 
 The concrete container wrapper, partition, workspace path, and GPU request
-syntax can differ by server. This plugin's generated scripts use deployment
-defaults for its target shared GPU server; adapt them before reusing the
-guidance for a different SLURM environment.
+syntax can differ by server. The generator uses portable defaults and accepts
+site-specific values only through explicit arguments.
 '''
 SHARED_GPU_PATTERN = render_default_placeholders(SHARED_GPU_PATTERN)
 
@@ -413,7 +444,11 @@ class MarkdownExtractor:
 
 
 class SbatchGenerator:
-    """Generate safe SBATCH scripts from the embedded sample."""
+    """Generate portable SBATCH scripts from explicit inputs."""
+
+    GPU_GUARD_SKIP_IF_MISSING = "skip_if_missing"
+    GPU_GUARD_ERROR_IF_MISSING = "error_if_missing"
+    GPU_GUARD_DISABLED = "disabled"
 
     @staticmethod
     def is_safe_sbatch_value(value: str | int) -> bool:
@@ -422,32 +457,37 @@ class SbatchGenerator:
         return bool(value_text) and re.search(r"[\r\n\x00]", value_text) is None
 
     @staticmethod
-    def replace_sbatch_value(script: str, option: str, value: str | int) -> str:
-        """Replace or insert a single SBATCH directive."""
-        pattern = re.compile(
-            rf"^#SBATCH\s+--{re.escape(option)}=.*$",
-            re.MULTILINE,
-        )
-        replacement = f"#SBATCH --{option}={value}"
-        if pattern.search(script):
-            return pattern.sub(replacement, script, count=1)
-        lines = script.splitlines()
-        insert_at = 0
-        for index, line in enumerate(lines):
-            if line.startswith("#SBATCH"):
-                insert_at = index + 1
-        lines.insert(insert_at, replacement)
-        return "\n".join(lines)
+    def is_safe_sbatch_option(option: str) -> bool:
+        """Return whether option is a safe long SBATCH option name."""
+        return re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]*", option) is not None
 
     @staticmethod
-    def replace_train_cmd(script: str, train_cmd: str) -> str:
-        """Replace the TRAIN_CMD assignment using shell-safe quoting."""
-        quoted = shlex.quote(train_cmd)
-        pattern = re.compile(r"^TRAIN_CMD=.*$", re.MULTILINE)
-        replacement = f"TRAIN_CMD={quoted}"
-        if pattern.search(script) is None:
-            raise ValueError("TRAIN_CMD assignment not found")
-        return pattern.sub(replacement, script, count=1)
+    def is_safe_shell_line(value: str) -> bool:
+        """Return whether a command-like value can stay on one script line."""
+        return bool(value) and re.search(r"[\r\n\x00]", value) is None
+
+    @staticmethod
+    def is_safe_env_name(name: str) -> bool:
+        """Return whether name is a valid shell variable identifier."""
+        return re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name) is not None
+
+    @classmethod
+    def append_sbatch_line(
+        cls,
+        lines: list[str],
+        option: str,
+        value: str | int | bool,
+    ) -> None:
+        """Append a validated SBATCH directive to lines."""
+        if not cls.is_safe_sbatch_option(option):
+            raise ValueError("unsafe SBATCH option name")
+        if isinstance(value, bool):
+            if value:
+                lines.append(f"#SBATCH --{option}")
+            return
+        if not cls.is_safe_sbatch_value(value):
+            raise ValueError("unsafe SBATCH directive value")
+        lines.append(f"#SBATCH --{option}={value}")
 
     @staticmethod
     def contains_rejected_train_cmd(train_cmd: str) -> bool:
@@ -460,6 +500,106 @@ class SbatchGenerator:
         )
 
     @classmethod
+    def append_gpu_guard(cls, lines: list[str], gpu_guard: str) -> None:
+        """Append a generic CUDA/nvidia-smi guard."""
+        if gpu_guard == cls.GPU_GUARD_DISABLED:
+            return
+        if gpu_guard not in (
+            cls.GPU_GUARD_SKIP_IF_MISSING,
+            cls.GPU_GUARD_ERROR_IF_MISSING,
+        ):
+            raise ValueError("unsupported gpu_guard")
+
+        lines.extend(
+            [
+                "",
+                'if [ -z "${CUDA_VISIBLE_DEVICES:-}" ]; then',
+                '    echo "[ERROR] SLURM did not assign a GPU." >&2',
+                "    exit 1",
+                "fi",
+                'echo "[INFO] SLURM assigned GPU: $CUDA_VISIBLE_DEVICES"',
+                "",
+                "if ! command -v nvidia-smi >/dev/null 2>&1; then",
+            ],
+        )
+        if gpu_guard == cls.GPU_GUARD_ERROR_IF_MISSING:
+            lines.extend(
+                [
+                    '    echo "[ERROR] nvidia-smi is unavailable." >&2',
+                    "    exit 1",
+                ],
+            )
+        else:
+            lines.append(
+                '    echo "[WARN] nvidia-smi unavailable; skipping GPU guard." >&2',
+            )
+        lines.extend(
+            [
+                "else",
+                '    for gpu_idx in $(echo "$CUDA_VISIBLE_DEVICES" | tr "," " "); do',
+                "        USED_MB=$(nvidia-smi "
+                "--query-gpu=memory.used "
+                "--format=csv,noheader,nounits "
+                "--id=$gpu_idx 2>/dev/null | tr -d ' ')",
+                '        if [ -z "$USED_MB" ]; then',
+                '            echo "[ERROR] Failed to query GPU $gpu_idx." >&2',
+                "            exit 1",
+                "        fi",
+                "        if [ \"$USED_MB\" -gt "
+                f"{DEFAULT_GPU_MEMORY_USED_MB_THRESHOLD} ]; then",
+                '            echo "[ERROR] GPU $gpu_idx is already using '
+                '${USED_MB} MB." >&2',
+                "            exit 1",
+                "        fi",
+                "    done",
+                "fi",
+            ],
+        )
+
+    @classmethod
+    def append_env_exports(cls, lines: list[str], env: dict[str, str]) -> None:
+        """Append validated environment exports."""
+        if not env:
+            return
+        lines.append("")
+        for name, value in env.items():
+            value_text = str(value)
+            if (
+                not cls.is_safe_env_name(name)
+                or not cls.is_safe_shell_line(value_text)
+            ):
+                raise ValueError("unsafe environment assignment")
+            lines.append(f"export {name}={shlex.quote(value_text)}")
+
+    @classmethod
+    def append_execution(
+        cls,
+        lines: list[str],
+        train_cmd: str,
+        workdir: str | None,
+        wrapper_cmd: str | None,
+    ) -> None:
+        """Append the training command execution block."""
+        if not cls.is_safe_shell_line(train_cmd):
+            raise ValueError("unsafe train_cmd")
+        if workdir is not None and not cls.is_safe_shell_line(workdir):
+            raise ValueError("unsafe workdir")
+        if wrapper_cmd is not None and not cls.is_safe_shell_line(wrapper_cmd):
+            raise ValueError("unsafe wrapper_cmd")
+
+        lines.extend(["", f"TRAIN_CMD={shlex.quote(train_cmd)}"])
+        if workdir is None:
+            lines.append('RUN_CMD="$TRAIN_CMD"')
+        else:
+            prefix = f"cd {shlex.quote(workdir)} && "
+            lines.append(f"RUN_CMD={shlex.quote(prefix)}\"$TRAIN_CMD\"")
+
+        if wrapper_cmd is None:
+            lines.append('bash -lc "$RUN_CMD"')
+        else:
+            lines.append(f"{wrapper_cmd} bash -lc \"$RUN_CMD\"")
+
+    @classmethod
     def generate(
         cls,
         train_cmd: str,
@@ -468,23 +608,40 @@ class SbatchGenerator:
         time: str,
         mem: str,
         cpus: int,
+        partition: str | None,
+        chdir: str | None,
+        output: str,
+        extra_sbatch_options: dict[str, str | int | bool] | None,
+        env: dict[str, str] | None,
+        workdir: str | None,
+        wrapper_cmd: str | None,
+        gpu_guard: str,
     ) -> str:
-        """Generate an SBATCH script from the embedded template."""
-        script = MarkdownExtractor.extract_fenced_block(SAMPLE_JOB_SCRIPT, "bash")
-        replacements: tuple[tuple[str, str | int], ...] = (
+        """Generate a generic SBATCH script from explicit parameters."""
+        lines = ["#!/bin/bash"]
+        required_options: tuple[tuple[str, str | int], ...] = (
             ("job-name", job_name),
             ("gpus", gpus),
             ("cpus-per-task", cpus),
             ("mem", mem),
             ("time", time),
-            ("chdir", DEFAULT_HOST_CHDIR),
-            ("output", DEFAULT_HOST_LOG_PATH),
+            ("output", output),
         )
-        for option, value in replacements:
-            if not cls.is_safe_sbatch_value(value):
-                raise ValueError("unsafe SBATCH directive value")
-            script = cls.replace_sbatch_value(script, option, value)
-        return cls.replace_train_cmd(script, train_cmd)
+        for option, value in required_options:
+            cls.append_sbatch_line(lines, option, value)
+        if partition is not None:
+            cls.append_sbatch_line(lines, "partition", partition)
+        if chdir is not None:
+            cls.append_sbatch_line(lines, "chdir", chdir)
+        for option, value in (extra_sbatch_options or {}).items():
+            cls.append_sbatch_line(lines, option, value)
+        lines.append("set -euo pipefail")
+
+        if gpus > 0:
+            cls.append_gpu_guard(lines, gpu_guard)
+        cls.append_env_exports(lines, env or {})
+        cls.append_execution(lines, train_cmd, workdir, wrapper_cmd)
+        return "\n".join(lines) + "\n"
 
 
 class Diagnostics:
@@ -594,23 +751,43 @@ class SlurmGuidanceTools:
     @staticmethod
     @APP.tool()
     def generate_sbatch_script(
-        train_cmd: str,
-        job_name: str = DEFAULT_JOB_NAME,
+        train_cmd: str = GENERIC_DEFAULT_TRAIN_CMD,
+        job_name: str = GENERIC_DEFAULT_JOB_NAME,
         gpus: int = 1,
         time: str = "24:00:00",
         mem: str = "32G",
         cpus: int = 8,
+        partition: str | None = None,
+        chdir: str | None = None,
+        output: str = GENERIC_DEFAULT_OUTPUT,
+        extra_sbatch_options: dict[str, str | int | bool] | None = None,
+        env: dict[str, str] | None = None,
+        workdir: str | None = None,
+        wrapper_cmd: str | None = None,
+        gpu_guard: str = SbatchGenerator.GPU_GUARD_SKIP_IF_MISSING,
     ) -> str:
-        """Generate a safe GPU server SBATCH script by changing template slots."""
+        """Generate a portable SBATCH script from explicit parameters."""
         if SbatchGenerator.contains_rejected_train_cmd(train_cmd):
             return REJECTED_TRAIN_CMD
         if gpus < 1 or cpus < 1:
             return "Rejected request: gpus and cpus must be positive integers."
         if not all(
             SbatchGenerator.is_safe_sbatch_value(value)
-            for value in (job_name, gpus, time, mem, cpus)
+            for value in (job_name, gpus, time, mem, cpus, output)
         ):
             return REJECTED_SBATCH_VALUE
+        if partition is not None and not SbatchGenerator.is_safe_sbatch_value(
+            partition,
+        ):
+            return REJECTED_SBATCH_VALUE
+        if chdir is not None and not SbatchGenerator.is_safe_sbatch_value(chdir):
+            return REJECTED_SBATCH_VALUE
+        if gpu_guard not in (
+            SbatchGenerator.GPU_GUARD_SKIP_IF_MISSING,
+            SbatchGenerator.GPU_GUARD_ERROR_IF_MISSING,
+            SbatchGenerator.GPU_GUARD_DISABLED,
+        ):
+            return REJECTED_GPU_GUARD
 
         try:
             return SbatchGenerator.generate(
@@ -620,7 +797,21 @@ class SlurmGuidanceTools:
                 time,
                 mem,
                 cpus,
+                partition,
+                chdir,
+                output,
+                extra_sbatch_options,
+                env,
+                workdir,
+                wrapper_cmd,
+                gpu_guard,
             )
+        except ValueError as error:
+            if "environment" in str(error):
+                return REJECTED_ENV_VALUE
+            if "gpu_guard" in str(error):
+                return REJECTED_GPU_GUARD
+            return REJECTED_SBATCH_VALUE
         except Exception:
             return NOT_FOUND
 
