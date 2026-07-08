@@ -60,25 +60,10 @@ description: Runs specialist reviewers, synthesizes their outputs, auto-applies 
       - If `next_iteration_scope == targeted`, compute a conservative subset of active specialists from `last_applied_finding_owners`, `last_changed_files`, and `last_changed_locations`.
       - If routing is ambiguous, fall back to all active specialists.
 
-      Targeted routing rules:
-
-      | Trigger from previous fixes | Add specialist |
-      |---|---|
-      | Owner of an applied synthesized finding | That owner |
-      | Code public API, imports, dependency direction, module boundary, config/build files | `architect` |
-      | Code logic, local naming, nesting, dead code, redundancy, idiom/local clarity | `simplification` |
-      | Added/changed comments or docstrings, or adjacent code changed next to a pre-existing comment | `comment` |
-      | Code behavior changed, bug fix changed, public symbol changed, or tests changed | `test-coverage` |
-      | Plan approach, architecture, scope, risks, trade-offs, validation content | `architect` |
-      | Plan prose flow, Introduction/Body/Conclusion writing, big-picture-first ordering | `document-writing` |
-      | Plan phase headings, subsection structure, required phase order, plan-template conformance | `plan-format` |
-
-      Force a full specialist rerun when any condition holds:
-      - `last_applied_finding_owners`, `last_changed_files`, or `last_changed_locations` is missing, empty after fixes, or cannot be tied to the latest diff.
-      - A changed file or hunk could affect more than the routed subset and the impact is not clear.
-      - A synthesized Critical or Important finding from the previous iteration would have no owner represented in `specialists_to_run`.
-      - A `[CONFLICT]` or `[NEEDS_DECISION]` finding was present or resolved in the previous iteration.
-      - The computed subset is empty, every routed specialist was skipped as inactive, or the target file type is unknown.
+      Targeted routing:
+      - Start with the owner specialists of the applied synthesized findings.
+      - Add collateral specialists only when the fix touches their concern: `architect` for API/import/module/build/config or plan approach/scope/risk; `simplification` for local code clarity/refactoring; `comment` for comments/docstrings or adjacent changed code; `test-coverage` for behavior/public symbols/tests; `document-writing` for prose flow; `plan-format` for plan structure/template conformance.
+      - Rerun all active specialists unless owner/location data is complete, the subset is non-empty and active, no conflict or user decision was involved, and the impact is clearly limited to the routed subset.
 
    c. **Fan out in parallel.** In a single message, emit one `Agent` tool call per specialist in `specialists_to_run`. Values in `< >` are substituted at runtime from the recorded variables:
       ```
