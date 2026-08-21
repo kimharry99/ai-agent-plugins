@@ -1,2 +1,5 @@
 .serena/
 .worktree/
+.specs/scratchpad/*.md
+.specs/analysis/*.md
+.specs/reports/*.md

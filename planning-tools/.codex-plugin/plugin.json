@@ -1,0 +1,30 @@
+{
+  "name": "planning-tools",
+  "version": "0.1.0",
+  "description": "Planning workflows for turning implementation plans into grounded goal prompts.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  },
+  "keywords": [
+    "planning",
+    "goal",
+    "prompt-generation"
+  ],
+  "skills": "skills",
+  "interface": {
+    "displayName": "Planning Tools",
+    "shortDescription": "Turn plans into grounded goal prompts.",
+    "longDescription": "Planning Tools converts implementation plan documents into structured goal prompt text while preserving the plan as the sole source of requirements.",
+    "developerName": "dmkim",
+    "category": "Productivity",
+    "capabilities": [
+      "Planning",
+      "Prompt Generation"
+    ],
+    "defaultPrompt": [
+      "Generate a goal prompt from this plan document."
+    ],
+    "brandColor": "#7C3AED"
+  }
+}
