@@ -1,0 +1,9 @@
+{
+  "name": "planning-tools",
+  "version": "0.1.0",
+  "description": "Planning workflows for turning implementation plans into grounded goal prompts.",
+  "author": {
+    "name": "dmkim",
+    "email": "kimharry9927@gmail.com"
+  }
+}

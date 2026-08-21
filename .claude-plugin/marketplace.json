@@ -24,6 +24,11 @@
       "name": "worktree-habit",
       "source": "./worktree-habit",
       "description": "Worktree-first guidance for creating in-repo feature worktrees before editing on main."
+    },
+    {
+      "name": "planning-tools",
+      "source": "./planning-tools",
+      "description": "Convert implementation plans into grounded, structured goal prompt text."
     }
   ]
 }
