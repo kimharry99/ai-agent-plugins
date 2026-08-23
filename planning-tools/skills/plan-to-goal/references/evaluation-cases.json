@@ -1,0 +1,432 @@
+[
+  {
+    "id": "global-deduplication",
+    "covers": [
+      "absent-completion-condition",
+      "progressive-restatement",
+      "summary-body-completion-repetition"
+    ],
+    "plan_input": [
+      "# Summary",
+      "Cache item responses.",
+      "",
+      "# Behavior",
+      "Cache responses from GET /items for 15 minutes.",
+      "The cache duration must be exactly 15 minutes and include empty responses.",
+      "",
+      "# Checklist",
+      "Caching for GET /items is implemented."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- Implement the functionality in `/tmp/repetition.md`.",
+      "",
+      "## Expected behavior",
+      "",
+      "- Cache responses from `GET /items` for exactly 15 minutes, including empty responses.",
+      "",
+      "## Constraints",
+      "",
+      "- Not specified.",
+      "",
+      "## Verification",
+      "",
+      "- Not specified.",
+      "",
+      "## Definition of done",
+      "",
+      "- Not specified."
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "Cache responses from `GET /items` for exactly 15 minutes, including empty responses.",
+        "section": "Expected behavior",
+        "qualifiers": [
+          "`GET /items`",
+          "exactly 15 minutes",
+          "including empty responses"
+        ]
+      }
+    ],
+    "has_terminal_condition": false,
+    "not_specified": "Not specified."
+  },
+  {
+    "id": "behavior-verification-and-handoff",
+    "covers": [
+      "behavior-and-verification",
+      "identifiers",
+      "multiline-shell-command",
+      "unique-completion-condition"
+    ],
+    "plan_input": [
+      "Generate report.json after each run.",
+      "Run:",
+      "python3 -m pytest tests/integration/test_report.py \\",
+      "  --maxfail=1 -q",
+      "Then inspect report.json and confirm its schema_version is 2.",
+      "Completion requires a signed review record at docs/review.md."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- Implement the functionality in `/tmp/report-plan.md`.",
+      "",
+      "## Expected behavior",
+      "",
+      "- Generate `report.json` after each run.",
+      "",
+      "## Constraints",
+      "",
+      "- Not specified.",
+      "",
+      "## Verification",
+      "",
+      "- Run:",
+      "",
+      "```bash",
+      "python3 -m pytest tests/integration/test_report.py \\",
+      "  --maxfail=1 -q",
+      "```",
+      "",
+      "- Inspect `report.json` and confirm `schema_version` is 2.",
+      "",
+      "## Definition of done",
+      "",
+      "- A signed review record exists at `docs/review.md`."
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "Generate `report.json` after each run.",
+        "section": "Expected behavior",
+        "qualifiers": [
+          "`report.json`",
+          "after each run"
+        ]
+      },
+      {
+        "canonical": "python3 -m pytest tests/integration/test_report.py \\\n  --maxfail=1 -q",
+        "section": "Verification",
+        "qualifiers": [
+          "tests/integration/test_report.py",
+          "--maxfail=1"
+        ]
+      },
+      {
+        "canonical": "Inspect `report.json` and confirm `schema_version` is 2.",
+        "section": "Verification",
+        "qualifiers": [
+          "`schema_version`",
+          "is 2"
+        ]
+      },
+      {
+        "canonical": "A signed review record exists at `docs/review.md`.",
+        "section": "Definition of done",
+        "qualifiers": [
+          "signed review record",
+          "`docs/review.md`"
+        ]
+      }
+    ],
+    "shell_commands": [
+      "python3 -m pytest tests/integration/test_report.py \\\n  --maxfail=1 -q"
+    ],
+    "has_terminal_condition": true,
+    "not_specified": "Not specified."
+  },
+  {
+    "id": "genuine-conflict",
+    "covers": [
+      "absent-completion-condition",
+      "conflict"
+    ],
+    "plan_input": [
+      "The retry limit must be 3 attempts.",
+      "The retry limit must be 5 attempts."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- Implement the functionality in `/tmp/conflict.md`.",
+      "",
+      "## Expected behavior",
+      "",
+      "- Not specified.",
+      "",
+      "## Constraints",
+      "",
+      "- Conflict: the retry limit must be 3 attempts; the retry limit must be 5 attempts.",
+      "",
+      "## Verification",
+      "",
+      "- Not specified.",
+      "",
+      "## Definition of done",
+      "",
+      "- Not specified."
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "Conflict: the retry limit must be 3 attempts; the retry limit must be 5 attempts.",
+        "section": "Constraints",
+        "qualifiers": [
+          "retry limit must be 3 attempts",
+          "retry limit must be 5 attempts"
+        ]
+      }
+    ],
+    "conflicts": [
+      {
+        "section": "Constraints",
+        "sides": [
+          "retry limit must be 3 attempts",
+          "retry limit must be 5 attempts"
+        ]
+      }
+    ],
+    "has_terminal_condition": false,
+    "not_specified": "Not specified."
+  },
+  {
+    "id": "mixed-language-plan",
+    "covers": [
+      "absent-completion-condition",
+      "identifiers",
+      "mixed-language"
+    ],
+    "plan_input": [
+      "# 목표",
+      "사용자가 로그인하면 dashboard를 표시한다.",
+      "API endpoint `/v2/session`은 그대로 유지한다.",
+      "Do not rename SessionToken."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- `/tmp/mixed.md`의 기능을 구현한다.",
+      "",
+      "## Expected behavior",
+      "",
+      "- 사용자가 로그인하면 dashboard를 표시한다.",
+      "",
+      "## Constraints",
+      "",
+      "- API endpoint `/v2/session`을 그대로 유지한다.",
+      "- `SessionToken`의 이름을 변경하지 않는다.",
+      "",
+      "## Verification",
+      "",
+      "- 명시되지 않음.",
+      "",
+      "## Definition of done",
+      "",
+      "- 명시되지 않음."
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "사용자가 로그인하면 dashboard를 표시한다.",
+        "section": "Expected behavior",
+        "qualifiers": [
+          "로그인하면",
+          "dashboard"
+        ]
+      },
+      {
+        "canonical": "API endpoint `/v2/session`을 그대로 유지한다.",
+        "section": "Constraints",
+        "qualifiers": [
+          "`/v2/session`",
+          "그대로 유지"
+        ]
+      },
+      {
+        "canonical": "`SessionToken`의 이름을 변경하지 않는다.",
+        "section": "Constraints",
+        "qualifiers": [
+          "`SessionToken`",
+          "변경하지 않는다"
+        ]
+      }
+    ],
+    "has_terminal_condition": false,
+    "not_specified": "명시되지 않음."
+  },
+  {
+    "id": "general-rule-with-exception",
+    "covers": [
+      "absent-completion-condition",
+      "identifiers"
+    ],
+    "plan_input": [
+      "Encrypt all stored files with AES-256.",
+      "As a specific exception, leave public/banner.txt unencrypted."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- Implement the functionality in `/tmp/encryption.md`.",
+      "",
+      "## Expected behavior",
+      "",
+      "- Not specified.",
+      "",
+      "## Constraints",
+      "",
+      "- Encrypt all stored files with `AES-256`.",
+      "- As a specific exception, leave `public/banner.txt` unencrypted.",
+      "",
+      "## Verification",
+      "",
+      "- Not specified.",
+      "",
+      "## Definition of done",
+      "",
+      "- Not specified."
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "Encrypt all stored files with `AES-256`.",
+        "section": "Constraints",
+        "qualifiers": [
+          "all stored files",
+          "`AES-256`"
+        ]
+      },
+      {
+        "canonical": "As a specific exception, leave `public/banner.txt` unencrypted.",
+        "section": "Constraints",
+        "qualifiers": [
+          "specific exception",
+          "`public/banner.txt`"
+        ]
+      }
+    ],
+    "has_terminal_condition": false,
+    "not_specified": "Not specified."
+  },
+  {
+    "id": "atomized-completion-statement",
+    "covers": [
+      "behavior-and-verification",
+      "unique-completion-condition"
+    ],
+    "plan_input": [
+      "Completion: a release candidate is ready for handoff once export requests return HTTP 200 with a UTF-8 CSV body and npm test -- export passes."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- Implement the functionality in `/tmp/completion.md`.",
+      "",
+      "## Expected behavior",
+      "",
+      "- Export requests return HTTP 200 with a UTF-8 CSV body.",
+      "",
+      "## Constraints",
+      "",
+      "- Not specified.",
+      "",
+      "## Verification",
+      "",
+      "- Run:",
+      "",
+      "```bash",
+      "npm test -- export",
+      "```",
+      "",
+      "## Definition of done",
+      "",
+      "- A release candidate is ready for handoff."
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "Export requests return HTTP 200 with a UTF-8 CSV body.",
+        "section": "Expected behavior",
+        "qualifiers": [
+          "HTTP 200",
+          "UTF-8 CSV body"
+        ]
+      },
+      {
+        "canonical": "npm test -- export",
+        "section": "Verification",
+        "qualifiers": [
+          "npm test",
+          "-- export"
+        ]
+      },
+      {
+        "canonical": "A release candidate is ready for handoff.",
+        "section": "Definition of done",
+        "qualifiers": [
+          "release candidate",
+          "ready for handoff"
+        ]
+      }
+    ],
+    "shell_commands": [
+      "npm test -- export"
+    ],
+    "has_terminal_condition": true,
+    "not_specified": "Not specified."
+  },
+  {
+    "id": "completion-restates-behavior-and-check",
+    "covers": [
+      "behavior-and-verification",
+      "unique-completion-condition"
+    ],
+    "plan_input": [
+      "Done when DELETE /sessions returns HTTP 204 and npm test -- sessions passes."
+    ],
+    "expected_output": [
+      "## Task",
+      "",
+      "- Implement the functionality in `/tmp/restated-completion.md`.",
+      "",
+      "## Expected behavior",
+      "",
+      "- `DELETE /sessions` returns HTTP 204.",
+      "",
+      "## Constraints",
+      "",
+      "- Not specified.",
+      "",
+      "## Verification",
+      "",
+      "- Run:",
+      "",
+      "```bash",
+      "npm test -- sessions",
+      "```",
+      "",
+      "## Definition of done"
+    ],
+    "atomic_requirements": [
+      {
+        "canonical": "`DELETE /sessions` returns HTTP 204.",
+        "section": "Expected behavior",
+        "qualifiers": [
+          "`DELETE /sessions`",
+          "HTTP 204"
+        ]
+      },
+      {
+        "canonical": "npm test -- sessions",
+        "section": "Verification",
+        "qualifiers": [
+          "npm test",
+          "-- sessions"
+        ]
+      }
+    ],
+    "shell_commands": [
+      "npm test -- sessions"
+    ],
+    "has_terminal_condition": true,
+    "expected_done_empty": true,
+    "not_specified": "Not specified."
+  }
+]
