@@ -126,7 +126,7 @@ class PlanToGoalSkillTest(unittest.TestCase):
         self.assertEqual(codex_manifest["name"], "planning-tools")
         self.assertEqual(codex_manifest["skills"], "skills")
         self.assertEqual(claude_manifest["name"], "planning-tools")
-        self.assertEqual(codex_manifest["version"], "0.2.0")
+        self.assertEqual(codex_manifest["version"], "0.3.0")
         self.assertEqual(
             claude_manifest["version"],
             codex_manifest["version"],
