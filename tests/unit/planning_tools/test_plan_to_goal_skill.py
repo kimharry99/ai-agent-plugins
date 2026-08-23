@@ -26,11 +26,17 @@ REQUIRED_COVERAGE = {
     "absent-completion-condition",
     "behavior-and-verification",
     "conflict",
+    "cross-section-default-duplication",
+    "edit-target-over-extraction",
+    "exception",
+    "explicit-completion-without-artifact",
     "identifiers",
     "mixed-language",
     "multiline-shell-command",
+    "positive-negative-equivalence",
     "progressive-restatement",
     "summary-body-completion-repetition",
+    "unique-handoff-record",
     "unique-completion-condition",
 }
 
@@ -155,8 +161,14 @@ class PlanToGoalSkillTest(unittest.TestCase):
         required_clauses = (
             "before rendering any output section",
             "independently verifiable",
-            "action, target, conditions, requirement strength, numbers, "
-            "exceptions, identifiers, commands, and source location",
+            "summaries, body sections, constraints, validation plans, "
+            "completion statements, and conclusions",
+            "action, target, conditions, exceptions, requirement strength, "
+            "values, directions, counts, paths, identifiers, commands, and "
+            "source context",
+            "explicitly declared as a completion condition",
+            "positive and the other is negative",
+            "desired design and the other rejects the inverse alternative",
             "strongest requirement",
             "union of all unique qualifiers",
             "prefer preservation over deletion",
@@ -177,7 +189,7 @@ class PlanToGoalSkillTest(unittest.TestCase):
             "implementation behavior with its verification",
             "verification command with a distinct acceptance criterion",
             "general rule with a specific exception",
-            "different values, directions, or error conditions",
+            "different values, directions, conditions, or error conditions",
         )
         for pair in distinct_pairs:
             with self.subTest(pair=pair):
@@ -192,15 +204,41 @@ class PlanToGoalSkillTest(unittest.TestCase):
         )
 
         self.assertIn("exactly one section", skill)
-        self.assertIn("observable implementation outcomes", skill)
-        self.assertIn("prohibitions, compatibility requirements", skill)
-        self.assertIn("executable checks, manual inspections", skill)
+        self.assertIn("observable runtime behavior", skill)
+        self.assertIn("public data contracts", skill)
+        self.assertIn("prohibitions, compatibility guarantees", skill)
+        self.assertIn("architectural restrictions", skill)
+        self.assertIn("tests, inspections, commands", skill)
         self.assertIn(
-            "only unique terminal states and handoff artifacts",
+            "unique terminal acceptance states and handoff artifacts",
+            skill,
+        )
+        self.assertIn(
+            "do not repeat an implementation obligation in both",
             skill,
         )
         self.assertIn("do not repeat earlier sections", skill)
         self.assertIn("do not use a cross-reference", skill)
+
+    def test_skill_excludes_planning_metadata_from_product_behavior(
+        self,
+    ) -> None:
+        """Keep navigation and explanatory metadata out of behavior."""
+        skill = " ".join(
+            SKILL_PATH.read_text(encoding="utf-8").lower().split()
+        )
+
+        for metadata in (
+            "edit-target file lists",
+            "implementation ordering",
+            "alternatives considered",
+            "explanatory context",
+            "risk descriptions",
+            "lists of test files",
+        ):
+            with self.subTest(metadata=metadata):
+                self.assertIn(metadata, skill)
+        self.assertIn("navigation metadata", skill)
 
     def test_output_template_uses_markdown_and_executable_commands(
         self,
@@ -230,7 +268,7 @@ class PlanToGoalSkillTest(unittest.TestCase):
 
         self.assertIsInstance(cases, list)
         self.assertGreaterEqual(len(cases), 6)
-        self.assertTrue(
+        self.assertFalse(
             any(case.get("expected_done_empty", False) for case in cases)
         )
         self.assertEqual(len(cases), len({case["id"] for case in cases}))
@@ -257,13 +295,19 @@ class PlanToGoalSkillTest(unittest.TestCase):
             sections = self._parse_output_sections(output)
             with self.subTest(case=case["id"]):
                 self.assertEqual(list(sections), list(OUTPUT_SECTIONS))
+                self.assertTrue(sections["Definition of done"])
                 for requirement in case["atomic_requirements"]:
                     canonical = requirement["canonical"]
                     owner = requirement["section"]
                     self.assertEqual(1, output.count(canonical))
                     self.assertIn(canonical, sections[owner])
+                    for section, body in sections.items():
+                        if section != owner:
+                            self.assertNotIn(canonical, body)
                     for qualifier in requirement["qualifiers"]:
                         self.assertIn(qualifier, canonical)
+                for omitted in case.get("forbidden_output", []):
+                    self.assertNotIn(omitted, output)
 
     def test_fixture_outputs_handle_completion_and_conflicts(self) -> None:
         """Distinguish absent completion criteria and preserve conflicts."""
@@ -276,8 +320,7 @@ class PlanToGoalSkillTest(unittest.TestCase):
             with self.subTest(case=case["id"]):
                 if case["has_terminal_condition"]:
                     self.assertNotIn("Not specified.", done)
-                    if case.get("expected_done_empty", False):
-                        self.assertEqual("", done)
+                    self.assertNotEqual("", done)
                 else:
                     self.assertEqual(f"- {case['not_specified']}", done)
                 for conflict in case.get("conflicts", []):
