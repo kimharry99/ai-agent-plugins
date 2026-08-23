@@ -35,12 +35,15 @@ ledger:
 
 1. Split every compound statement into independently verifiable meanings. One
    independently verifiable meaning is one atomic requirement.
-2. For each atomic requirement, record its action, target, conditions,
-   requirement strength, numbers, exceptions, identifiers, commands, and source
-   location.
-3. Compare requirements across the whole plan, including summaries, body
-   sections, checklists, and completion sections. Merge requirements that state
-   the same final obligation or where one is a less detailed restatement.
+2. Extract requirements from summaries, body sections, constraints, validation
+   plans, completion statements, and conclusions. For each atomic requirement,
+   record its action, target, conditions, exceptions, requirement strength,
+   values, directions, counts, paths, identifiers, commands, and source context,
+   including whether it was explicitly declared as a completion condition.
+3. Compare requirements across the whole plan. Merge requirements that impose
+   the same final obligation, including when one is positive and the other is
+   negative, one is a concise summary and the other is detailed, or one states
+   the desired design and the other rejects the inverse alternative.
 4. Synthesize one canonical statement for each merged group. Preserve the
    strongest requirement and the union of all unique qualifiers; do not merely
    choose the shortest or longest source sentence.
@@ -52,7 +55,8 @@ Do not merge:
 - implementation behavior with its verification;
 - a verification command with a distinct acceptance criterion;
 - a general rule with a specific exception; or
-- statements with different values, directions, or error conditions.
+- statements with different values, directions, conditions, or error
+  conditions.
 
 For a genuine conflict, create one explicitly marked conflict item and preserve
 both sides. Do not resolve, weaken, or discard either side.
@@ -62,13 +66,33 @@ both sides. Do not resolve, weaken, or discard either side.
 Assign every canonical atomic requirement to exactly one section according to
 its primary intent:
 
-- **Expected behavior:** observable implementation outcomes.
-- **Constraints:** prohibitions, compatibility requirements, scope boundaries,
-  preserved invariants, and explicit exceptions.
-- **Verification:** executable checks, manual inspections, and their acceptance
-  criteria. Keep a command distinct from a separate criterion.
-- **Definition of done:** only unique terminal states and handoff artifacts that
-  must exist at completion, such as a required review record or deliverable.
+- **Expected behavior:** observable runtime behavior, public data contracts,
+  outputs, error behavior, and required user-facing functionality.
+- **Constraints:** prohibitions, compatibility guarantees, scope boundaries,
+  architectural restrictions, compatibility-preserving defaults, preserved
+  invariants, and explicit exceptions.
+- **Verification:** tests, inspections, commands, and their acceptance criteria.
+  Keep a command distinct from a separate criterion. Verification may test a
+  behavior owned elsewhere because implementation and evidence are distinct
+  obligations.
+- **Definition of done:** unique terminal acceptance states and handoff artifacts
+  that must exist at completion, such as a required review record or deliverable.
+
+Do not repeat an implementation obligation in both **Expected behavior** and
+**Constraints**.
+
+## Exclude planning metadata
+
+Do not place edit-target file lists, implementation ordering, alternatives
+considered, explanatory context, risk descriptions, or lists of test files in
+**Expected behavior** merely because they occur in the plan. Treat edit-target
+lists as navigation metadata and omit them when their intended changes are
+already represented by canonical requirements.
+
+Preserve normative content found in those sections: forbidden files or modules
+and mandatory sequencing belong in **Constraints**; test cases and commands
+belong in **Verification**; required documentation outcomes belong in
+**Expected behavior** or **Definition of done** according to their intent.
 
 Do not repeat earlier sections in **Definition of done** and do not use a
 cross-reference such as “all preceding sections must be satisfied.” When an
@@ -79,9 +103,11 @@ in **Definition of done**.
 Use the primary-language equivalent of `Not specified.` in **Definition of
 done** only when the source plan truly contains no explicit terminal condition
 or handoff requirement. Do not emit it merely because parts of an explicit
-completion statement were assigned to other sections. If such a statement has
-no unique terminal state or handoff artifact after atomization, keep the
-**Definition of done** heading empty.
+completion statement were assigned to other sections. If an explicit completion
+statement has no separate artifact, express its distinct terminal acceptance
+predicate: the required evidence has established the planned behavior. Keep the
+detailed behavior in **Expected behavior** and exact tests or commands in
+**Verification**.
 
 ## Render the goal prompt
 
@@ -129,9 +155,11 @@ normalized absolute path.
 
 If **Expected behavior**, **Constraints**, or **Verification** has no owned
 requirement, emit one bullet containing the primary-language equivalent of
-`Not specified.`. Do not omit a section. Render a conflict as one bullet
-beginning with the primary-language equivalent of `Conflict:` and include both
-sides.
+`Not specified.`. Never emit an empty **Definition of done** body. Use its
+primary-language `Not specified.` bullet only when the plan has no explicit
+completion condition or handoff artifact. Do not omit a section. Render a
+conflict as one bullet beginning with the primary-language equivalent of
+`Conflict:` and include both sides.
 
 ## Validate before returning
 
@@ -144,7 +172,8 @@ Audit the rendered prompt against the ledger:
 - Section ownership follows the primary-intent rules.
 - Each command matches the source text and line structure and remains
   executable.
-- **Definition of done** contains no repetition or cross-reference.
+- **Definition of done** is non-empty and contains no repetition or
+  cross-reference.
 
 For maintenance evaluation cases covering deduplication, ownership, completion,
 conflicts, commands, identifiers, and mixed-language input, see
