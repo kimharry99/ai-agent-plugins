@@ -1,0 +1,34 @@
+{
+  "name": "eli5",
+  "version": "1.0.0",
+  "description": "Explain any topic like I'm 5: a dead-simple HTML picture explainer with big visuals and few words. Use $eli5 with a topic.",
+  "author": {
+    "name": "Thariq Shihipar"
+  },
+  "license": "MIT",
+  "keywords": [
+    "explain",
+    "eli5",
+    "learning",
+    "explainer",
+    "html"
+  ],
+  "skills": "skills",
+  "interface": {
+    "displayName": "ELI5",
+    "shortDescription": "Create simple HTML picture explainers.",
+    "longDescription": "ELI5 turns a topic into a dead-simple HTML artifact with big visuals and very few words for someone who knows nothing about it.",
+    "developerName": "Thariq Shihipar",
+    "category": "Productivity",
+    "capabilities": [
+      "HTML Artifacts",
+      "Visual Explanation",
+      "Learning"
+    ],
+    "defaultPrompt": [
+      "Explain how DNS works with big pictures and few words.",
+      "Create an ELI5 HTML picture explainer for this topic."
+    ],
+    "brandColor": "#0EA5E9"
+  }
+}

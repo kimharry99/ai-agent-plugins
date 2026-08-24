@@ -11,6 +11,7 @@ A personal plugin marketplace for Claude Code and Codex.
 | [git-skills](./git-skills/) | GitHub PR lifecycle skills for opening PRs, merging, analyzing reviews, and applying feedback. |
 | [worktree-habit](./worktree-habit/) | Worktree-first guidance for creating feature worktrees before editing on `main`. |
 | [ssh-slurm](./ssh-slurm/) | Read-only SLURM guidance and generic SBATCH script generation. |
+| [eli5](./eli5/) | HTML picture explainers with big visuals and very few words. |
 
 ## Claude Code Installation
 
@@ -42,13 +43,14 @@ codex plugin add custom-reviewer@ai-agent-plugins
 codex plugin add git-skills@ai-agent-plugins
 codex plugin add worktree-habit@ai-agent-plugins
 codex plugin add ssh-slurm@ai-agent-plugins
+codex plugin add eli5@ai-agent-plugins
 ```
 
 Codex reads marketplace metadata from `.agents/plugins/marketplace.json` and plugin metadata from each plugin's `.codex-plugin/plugin.json`.
 
 ## Plugin Structure
 
-Each plugin keeps Claude Code and Codex metadata side by side:
+Cross-product plugins keep Claude Code and Codex metadata side by side. Codex-only plugins may omit Claude Code metadata:
 
 ```text
 plugin-name/
