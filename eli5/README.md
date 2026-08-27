@@ -10,7 +10,7 @@ $eli5 양자 얽힘을 대학원 수준으로 설명해 줘
 
 The default is `5th`. Supported levels are `5th`, `middle`, `high`, `college`, and `graduate`; natural-language English and Korean aliases work too.
 
-Every result is a self-contained, picture-led HTML artifact with large visuals and short labels. Higher levels increase the information density and depth of the selected explanation instead of repeating explanations from lower levels.
+Every result is a picture-led HTML artifact with large visuals and short labels. Higher levels increase the information density and depth of the selected explanation instead of repeating explanations from lower levels.
 
 | Grade Level | Depth |
 |---|---|
