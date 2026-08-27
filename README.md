@@ -11,7 +11,7 @@ A personal plugin marketplace for Claude Code and Codex.
 | [git-skills](./git-skills/) | GitHub PR lifecycle skills for opening PRs, merging, analyzing reviews, and applying feedback. |
 | [worktree-habit](./worktree-habit/) | Worktree-first guidance for creating feature worktrees before editing on `main`. |
 | [ssh-slurm](./ssh-slurm/) | Read-only SLURM guidance and generic SBATCH script generation. |
-| [eli5](./eli5/) | HTML picture explainers with big visuals and very few words. |
+| [eli5](./eli5/) | Picture-led HTML explainers from 5th-grade through graduate depth. |
 
 ## Claude Code Installation
 

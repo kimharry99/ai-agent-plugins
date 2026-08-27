@@ -1,4 +1,4 @@
 interface:
   display_name: "ELI5"
-  short_description: "Create a simple HTML picture explainer."
-  default_prompt: "Use $eli5 to explain how DNS works with big pictures and few words."
+  short_description: "Create grade-level HTML picture explainers."
+  default_prompt: "Use $eli5 --level college to explain how DNS works with a picture-led HTML artifact."
