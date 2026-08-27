@@ -20,4 +20,4 @@ Every result is a picture-led HTML artifact with large visuals and short labels.
 | `college` | Conceptual model, applications, and trade-offs |
 | `graduate` | Assumptions, precise mechanisms, exceptions, and limitations |
 
-Use `--level <level>` or state the level naturally in the request. The skill asks for a topic when one is missing and asks you to choose a supported level when an explicit level is unsupported. It researches and cites external sources only when requested.
+Use `--level <level>` or state the level naturally in the request.
