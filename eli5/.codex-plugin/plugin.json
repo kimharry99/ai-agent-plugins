@@ -1,7 +1,7 @@
 {
   "name": "eli5",
-  "version": "1.0.0",
-  "description": "Explain any topic like I'm 5: a dead-simple HTML picture explainer with big visuals and few words. Use $eli5 with a topic.",
+  "version": "1.1.0",
+  "description": "Create picture-led HTML explanations at a selected grade level, from 5th grade through graduate depth. Use $eli5 with a topic and optional level.",
   "author": {
     "name": "Thariq Shihipar"
   },
@@ -16,18 +16,19 @@
   "skills": "skills",
   "interface": {
     "displayName": "ELI5",
-    "shortDescription": "Create simple HTML picture explainers.",
-    "longDescription": "ELI5 turns a topic into a dead-simple HTML artifact with big visuals and very few words for someone who knows nothing about it.",
+    "shortDescription": "Create grade-level HTML picture explainers.",
+    "longDescription": "ELI5 turns a topic into a picture-led HTML artifact calibrated to 5th, middle, high, college, or graduate level, with large visuals and concise labels at every depth.",
     "developerName": "Thariq Shihipar",
     "category": "Productivity",
     "capabilities": [
       "HTML Artifacts",
       "Visual Explanation",
+      "Grade-Level Depth",
       "Learning"
     ],
     "defaultPrompt": [
-      "Explain how DNS works with big pictures and few words.",
-      "Create an ELI5 HTML picture explainer for this topic."
+      "Use $eli5 to explain how DNS works at the default 5th-grade level.",
+      "Use $eli5 --level college to create a picture-led HTML explanation of this topic."
     ],
     "brandColor": "#0EA5E9"
   }
