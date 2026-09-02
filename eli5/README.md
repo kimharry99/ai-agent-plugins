@@ -1,23 +1,21 @@
 # eli5
 
-Create a picture-led HTML explanation at the Grade Level you choose.
+Create a picture-led HTML explanation for someone who knows nothing about a topic, at the presentation density you choose.
 
 ```
 $eli5 how does DNS work
-$eli5 --level high how does DNS work
-$eli5 양자 얽힘을 대학원 수준으로 설명해 줘
+$eli5 --level middle how does DNS work
+$eli5 --level college 양자 얽힘을 설명해 줘
 ```
 
-The default is `5th`. Supported levels are `5th`, `middle`, `high`, `college`, and `graduate`; natural-language English and Korean aliases work too.
+The default is `age5`. Supported levels are `age5`, `middle`, and `college`; natural-language English and Korean aliases work too.
 
-Every result is a picture-led HTML artifact with large visuals and short labels. Higher levels increase the information density and depth of the selected explanation instead of repeating explanations from lower levels.
+Every level assumes that the reader knows nothing about the topic. The request determines what to explain, while the selected level changes only the presentation format and information density. Every result is a self-contained, picture-led HTML artifact, with progressively more text from `age5` through `middle` to `college`.
 
-| Grade Level | Depth |
+| Explanation Level | Presentation |
 |---|---|
-| `5th` | Core principle and a familiar analogy |
-| `middle` | Basic terms and a step-by-step process |
-| `high` | Multi-step mechanism and major constraints |
-| `college` | Conceptual model, applications, and trade-offs |
-| `graduate` | Assumptions, precise mechanisms, exceptions, and limitations |
+| `age5` | Big pictures carry the explanation, with very few words, short labels, and plain-language sentences. |
+| `middle` | Pictures and concise text share the explanation through short paragraphs, labeled diagrams, and plain-language definitions. |
+| `college` | Diagrams organize a text-rich explanation with detailed paragraphs, precise terms, captions, and explicit logical connections. |
 
 Use `--level <level>` or state the level naturally in the request.

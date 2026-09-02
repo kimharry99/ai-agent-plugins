@@ -1,7 +1,7 @@
 {
   "name": "eli5",
-  "version": "1.1.2",
-  "description": "Create picture-led HTML explanations at a selected grade level, from 5th grade through graduate depth. Use $eli5 with a topic and optional level.",
+  "version": "1.2.0",
+  "description": "Create picture-led HTML explanations for people new to a topic at age5, middle, or college presentation density. Use $eli5 with a topic and optional level.",
   "author": {
     "name": "Thariq Shihipar"
   },
@@ -16,19 +16,19 @@
   "skills": "skills",
   "interface": {
     "displayName": "ELI5",
-    "shortDescription": "Create grade-level HTML picture explainers.",
-    "longDescription": "ELI5 turns a topic into a picture-led HTML artifact calibrated to 5th, middle, high, college, or graduate level, with large visuals and concise labels at every depth.",
+    "shortDescription": "Create visual explainers at adjustable density.",
+    "longDescription": "ELI5 turns a topic into a picture-led HTML artifact that assumes no prior knowledge at every level, moving from big pictures and few words at age5 to text-rich, diagram-organized college explanations.",
     "developerName": "Thariq Shihipar",
     "category": "Productivity",
     "capabilities": [
       "HTML Artifacts",
       "Visual Explanation",
-      "Grade-Level Depth",
+      "Explanation Density",
       "Learning"
     ],
     "defaultPrompt": [
-      "Use $eli5 to explain how DNS works at the default 5th-grade level.",
-      "Use $eli5 --level college to create a picture-led HTML explanation of this topic."
+      "Use $eli5 to explain how DNS works at the default age5 level.",
+      "Use $eli5 --level college to create a text-rich, diagram-organized explanation of this topic."
     ],
     "brandColor": "#0EA5E9"
   }
