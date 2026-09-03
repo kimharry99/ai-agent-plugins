@@ -1,0 +1,21 @@
+{
+  "name": "knowledge-db",
+  "version": "0.1.0",
+  "description": "Archive work records and search prior evidence in a user-configured Knowledge DB.",
+  "author": {
+    "name": "dmkim"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Knowledge DB",
+    "shortDescription": "Record and search local project knowledge.",
+    "longDescription": "Knowledge DB archives concise work records and searches prior project evidence using a root path configured in AGENTS.md.",
+    "developerName": "dmkim",
+    "category": "Productivity",
+    "capabilities": [
+      "Knowledge Archiving",
+      "Local Evidence Search"
+    ],
+    "defaultPrompt": "Use $knowledge-db-work-record to archive this work in my configured Knowledge DB."
+  }
+}
