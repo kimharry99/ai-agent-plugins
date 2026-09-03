@@ -12,8 +12,8 @@ Prefer recent, structured evidence before session-log searching.
 1. Search the Knowledge DB root configured in the applicable `AGENTS.md`
    instructions using the label `Knowledge DB root`.
 2. If the Knowledge DB is insufficient, search recent Codex logs:
-   `/home/dmkim/.codex/history.jsonl` and
-   `/home/dmkim/.codex/sessions/`.
+   `~/.codex/history.jsonl` and
+   `~/.codex/sessions/`.
 
 Use Chronicle only if a Chronicle connector or tool is actually available.
 If it is unavailable, say so and do not infer evidence from it.
