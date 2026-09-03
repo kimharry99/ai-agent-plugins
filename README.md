@@ -12,6 +12,7 @@ A personal plugin marketplace for Claude Code and Codex.
 | [worktree-habit](./worktree-habit/) | Worktree-first guidance for creating feature worktrees before editing on `main`. |
 | [ssh-slurm](./ssh-slurm/) | Read-only SLURM guidance and generic SBATCH script generation. |
 | [eli5](./eli5/) | Picture-led HTML explainers at age5, middle, or college presentation density. |
+| [knowledge-db](./knowledge-db/) | Archive work records and search prior evidence in a user-configured Knowledge DB. |
 
 ## Claude Code Installation
 
@@ -44,6 +45,7 @@ codex plugin add git-skills@ai-agent-plugins
 codex plugin add worktree-habit@ai-agent-plugins
 codex plugin add ssh-slurm@ai-agent-plugins
 codex plugin add eli5@ai-agent-plugins
+codex plugin add knowledge-db@ai-agent-plugins
 ```
 
 Codex reads marketplace metadata from `.agents/plugins/marketplace.json` and plugin metadata from each plugin's `.codex-plugin/plugin.json`.
